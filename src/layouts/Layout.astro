@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import SideNav from '../components/SideNav.astro';
+import SearchSection from '../components/SearchSection.astro';
 ---
 <!doctype html>
 <html lang="en">
@@ -11,10 +12,11 @@ import SideNav from '../components/SideNav.astro';
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
 	</head>
-	<body>
+	<body class="flex w-full h-screen">
 		<SideNav/>
-		<main>
+		<main class="flex-1 ">
 			<slot />
 		</main>
+		<SearchSection/>
 	</body>
 </html>
