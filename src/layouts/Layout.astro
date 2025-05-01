@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import SideNav from '../components/SideNav.astro';
 ---
 <!doctype html>
 <html lang="en">
@@ -11,6 +12,9 @@ import '../styles/global.css';
 		<title>Astro Basics</title>
 	</head>
 	<body>
-		<slot />
+		<SideNav/>
+		<main>
+			<slot />
+		</main>
 	</body>
 </html>
