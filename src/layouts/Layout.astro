@@ -1,6 +1,11 @@
 ---
 import '../styles/global.css';
 import SideNav from '../components/SideNav.astro';
+import SearchSection from '../components/SearchSection.astro';
+
+var pageName= Astro.originPathname.split('/').pop();
+ pageName = !pageName? 'home' : pageName;
+const pageTitle = pageName.charAt(0).toUpperCase() + pageName.slice(1);
 ---
 <!doctype html>
 <html lang="en">
@@ -11,10 +16,14 @@ import SideNav from '../components/SideNav.astro';
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
 	</head>
-	<body>
+	<body class="flex w-full h-screen">
 		<SideNav/>
-		<main>
+		<main class="flex-1 border-l border-r border-primary ">
+			<div class="flex items-center p-4 py-2 mt-3 border-b border-primary bg-white">
+				<h1 class="text-primary font-semibold text-lg">{pageTitle}</h1>
+			</div>
 			<slot />
 		</main>
+		<SearchSection/>
 	</body>
 </html>
