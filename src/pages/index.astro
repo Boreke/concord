@@ -2,9 +2,11 @@
 import Post from '../components/Post.astro';
 import Layout from '../layouts/Layout.astro';
 import { postTemplate } from '../constants/postTemplate';
+import EmptyPost from '../components/EmptyPost.astro';
 ---
 
 <Layout>
+    <EmptyPost />
     {
         postTemplate.map((post) => (
             <Post post={post} />
