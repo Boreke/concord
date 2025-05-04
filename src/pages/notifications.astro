@@ -1,0 +1,11 @@
+---
+import Layout from "../layouts/Layout.astro"
+import Notification from "../components/Notification.astro";
+import { postTemplate } from "../constants/postTemplate";
+---
+
+<Layout>
+    {postTemplate.map((post) => (
+        <Notification post={post} />
+    ))}
+</Layout>
