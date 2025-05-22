@@ -1,11 +1,13 @@
 ---
-import Layout from "../layouts/Layout.astro"
+import Layout from "../layouts/Layout.astro";
 import Notification from "../components/Notification.astro";
 import { postTemplate } from "../constants/postTemplate";
+import SearchSection from "../components/SearchSection.astro";
 ---
 
 <Layout>
-    {postTemplate.map((post) => (
-        <Notification post={post} />
-    ))}
+  <main class="flex flex-1 flex-col items-center border-x border-primary gap-4">
+    {postTemplate.map((post) => <Notification post={post} />)}
+  </main>
+  <SearchSection />
 </Layout>
