@@ -27,24 +27,22 @@ const { post } = Astro.props;
                 }
             </div>
         : (
-            <div class="grid grid-cols-2 gap-2 m-4 ml-8">
+            <div class="grid grid-cols-2 grid-rows-2 gap-2 h-80 m-4 ml-8">
                 
                     <img 
                         src={post.images?.[0]} 
                         alt={`post image 0`} 
-                        class="relative w-full h-full object-cover rounded-lg"
+                        class="relative w-full h-full row-span-2 object-cover rounded-lg"
                     />
-                    <div class="flex flex-col justify-between gap-2">
-                        {
-                            post.images?.slice(1).map((image: string, index: number) => (
-                                <img 
-                                    src={image} 
-                                    alt={`post image ${index + 1}`} 
-                                    class="relative w-full h-45 object-cover rounded-lg"
-                                />
-                            ))
-                        }
-                    </div>
+                    {
+                        post.images?.slice(1).map((image: string, index: number) => (
+                            <img 
+                                src={image} 
+                                alt={`post image ${index + 1}`} 
+                                class="relative w-full h-full object-cover rounded-lg"
+                            />
+                        ))
+                    }
             </div>
         )}
 
