@@ -1,7 +1,6 @@
 ---
 import '../styles/global.css';
 import SideNav from '../components/SideNav.astro';
-import SearchSection from '../components/SearchSection.astro';
 
 var pageName= Astro.originPathname.split('/').pop();
  pageName = !pageName? 'home' : pageName;
@@ -15,7 +14,7 @@ var pageName= Astro.originPathname.split('/').pop();
 		<meta name="generator" content={Astro.generator} />
 		<title>Concord</title>
 	</head>
-	<body class="flex w-full h-screen">
+	<body class="flex w-full h-full">
 		<SideNav/>
 		<slot/>
 	</body>
