@@ -1,76 +1,94 @@
 package org.concord.backend.service;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.WeakKeyException;
-import org.concord.backend.model.User;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import org.concord.backend.config.jwt.JwtTokenUtil;
+import org.concord.backend.config.jwt.TokenPayload;
+import org.concord.backend.config.jwt.TokenSet;
+import org.concord.backend.dal.model.enums.Role;
+import org.concord.backend.dal.model.postgres.User;
+import org.concord.backend.dal.postgres.repository.UserRepository;
+import org.concord.backend.exceptions.BusinessException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
-import java.util.Date;
-
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    final private JwtTokenUtil jwtTokenUtil;
+    final private HttpServletResponse response;
+    @Value("${cors.insecure}")
+    boolean corsInsecure;
+    @Autowired
+    UserRepository userRepository;
+    @Value("${jwt.refresh-token-duration}")
+    private int refreshTokenDuration;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
+    /**
+     * Check if user has one of the roles listed
+     *
+     * @return
+     */
 
-    public String generateToken(User user) {
-        return generateToken(user.getId().toString());
+    static public boolean isUserAnonymous() {
+        // by default spring security set the principal as "anonymousUser"
+        return SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal()
+                .equals("anonymousUser");
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(userDetails.getUsername());
+    public Long getLoggedId() {
+        if (!isUserAnonymous()) {
+            return ((TokenPayload) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal()).getId();
+        }
+        return null;
     }
 
-    private String generateToken(String subject) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + jwtExpiration);
 
-        return Jwts.builder()
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+    public boolean userHasRole(String role) {
+        return ((TokenPayload) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal()).getRole()
+                .equals(role);
     }
 
-    public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
+    public TokenSet logUser(User user) {
+        TokenSet set = jwtTokenUtil.generateTokenSet(user);
+        return setRefreshTokenCookie(set);
     }
 
-    public boolean validateToken(String token, UserDetails userDetails) {
+    public TokenSet refreshUserToken(String refreshToken) {
         try {
-            final String username = extractUsername(token);
-            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            TokenSet set = jwtTokenUtil.refreshWithToken(refreshToken);
+            return setRefreshTokenCookie(set);
+        } catch (JWTVerificationException e) {
+            throw new BusinessException("refresh_token_invalid");
         }
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
+    private TokenSet setRefreshTokenCookie(TokenSet set) {
+        Cookie cRefreshToken = new Cookie("refresh-token", set.getRefreshToken());
+        cRefreshToken.setMaxAge(refreshTokenDuration);
+        cRefreshToken.setPath("/auth/refresh");
+        cRefreshToken.setSecure(corsInsecure);
+
+        response.addCookie(cRefreshToken);
+
+        return set;
     }
 
-    private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
+    public boolean validUSERPerformAction(String objectId) {
+        return (userHasRole(Role.ADMIN.toString()) ||
+                userHasRole(Role.SUPER_ADMIN.toString()) ||
+                objectId.equals(getLoggedId()));
 
-    private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        if (keyBytes.length < 32) {
-            throw new WeakKeyException("JWT secret must be at least 256 bits (32 bytes) when Base64-decoded.");
-        }
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

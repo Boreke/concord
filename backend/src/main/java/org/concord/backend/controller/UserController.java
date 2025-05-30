@@ -1,18 +1,16 @@
 package org.concord.backend.controller;
 
-import jakarta.validation.Valid;
-import org.concord.backend.dto.PublicUserDTO;
-import org.concord.backend.dto.UpdateProfileDTO;
-import org.concord.backend.model.User;
+import org.concord.backend.dto.request.UserRequest;
+import org.concord.backend.dto.response.UserResponse;
 import org.concord.backend.service.UserService;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -21,21 +19,41 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<User> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
-        return userService.getProfile(userDetails);
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public ResponseEntity<UserResponse> create(@RequestBody UserRequest requestDto) {
+        return ResponseEntity.ok(userService.createUser(requestDto));
     }
 
-    @PatchMapping("/profile")
-    public ResponseEntity<User> updateProfile(@AuthenticationPrincipal UserDetails userDetails,
-                                              @Valid @RequestBody UpdateProfileDTO update) {
-        return userService.updateProfile(userDetails, update);
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<List<UserResponse>> findAll() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Page<PublicUserDTO>> searchUsers(@RequestParam(defaultValue = "") String query,
-                                                           @RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(defaultValue = "10") int size) {
-        return userService.searchUsers(query, page, size);
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<UserResponse> findMe() {
+        return ResponseEntity.ok(userService.getCurrentUser());
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<UserResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/promote/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> promote(@PathVariable Long id) {
+        userService.promoteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,4 +1,4 @@
-package org.concord.backend.dto;
+package org.concord.backend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,4 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
+    private String refreshToken;
 }
