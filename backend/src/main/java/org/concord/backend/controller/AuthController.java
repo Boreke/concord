@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.concord.backend.dto.request.RefreshRequest;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;

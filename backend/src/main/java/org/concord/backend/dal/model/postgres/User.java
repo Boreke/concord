@@ -29,10 +29,10 @@ public class User {
     @Column(unique = true, name = "user_tag")
     private String userTag;
 
-    @NotBlank
-    @Column(name = "full_name")
+    @Column(name = "full_name", nullable = true)
     private String fullName;
 
+    @Column(name = "display_name")
     private String displayName;
 
     private String bio;

@@ -43,10 +43,3 @@ jwt:
   token-duration: 1800               # default: 30 min
   refresh-token-duration: 2592000    # default: 1 month
   issuer: concord
-
-aws:
-  accessKey: iamasecretkey
-  secretKey: iamasecretkey
-  region: eu-north-1
-  s3:
-    bucket: concord-images

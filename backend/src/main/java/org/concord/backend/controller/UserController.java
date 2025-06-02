@@ -24,8 +24,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> create(@RequestBody UserRequest requestDto) {
-        return ResponseEntity.ok(userService.createUser(requestDto));
+    public ResponseEntity<UserResponse> create(@RequestBody UserRequest request) {
+        return ResponseEntity.ok(userService.createUser(request));
     }
 
     @PublicEndpoint
