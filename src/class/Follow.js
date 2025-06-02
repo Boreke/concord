@@ -16,7 +16,6 @@ export class Follow {
     }
     static fromAPI(response){
         return new Follow(
-            response.id,
             response.followerId,
             response.followeeId
         )

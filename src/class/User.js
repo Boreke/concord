@@ -7,7 +7,7 @@ export class User {
         this.displayName = displayName;
         this.role = role;
         this.createdAt = createdAt;
-        this.isPrivate = isPrivate;
+        this._isPrivate = isPrivate;
     }
 
     getId() {
@@ -40,7 +40,7 @@ export class User {
         return this.isPrivate;
     }
     toString() {
-        return `User: ${this.userTag} (${this.fullName})`;
+        return `User: ${this.userTag} (${this.displayName})`;
     }
     static fromAPI(response) {
         return new User(

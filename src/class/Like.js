@@ -18,7 +18,6 @@ export class Like {
 
     static fromAPI(response) {
         return new Like(
-            response.id,
             response.userId,
             response.postId
         );
