@@ -51,4 +51,10 @@ public class UserController {
         List<UserShortResponse> following = userService.getFollowingByUserId(id);
         return ResponseEntity.ok(following);
     }
+
+    @GetMapping("/{id}/recommendations")
+    public ResponseEntity<List<UserShortResponse>> getRecommendations(@PathVariable Long id) {
+        List<UserShortResponse> recommendations = userService.getRecommendations(id);
+        return ResponseEntity.ok(recommendations);
+    }
 } 
