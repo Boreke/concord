@@ -1,5 +1,6 @@
 package org.concord.backend.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.concord.backend.dal.model.postgres.Like;
 import org.concord.backend.dal.model.postgres.LikeId;
@@ -11,10 +12,12 @@ import org.concord.backend.dal.postgres.repository.UserRepository;
 import org.concord.backend.dto.request.PostRequest;
 import org.concord.backend.dto.response.PostResponse;
 import org.concord.backend.mapper.PostMapper;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +40,12 @@ public class PostService {
         return PostMapper.toResponse(post);
     }
 
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<PostResponse> getAllPosts() {
+        return postRepository.findAllWithLikes()
+                .stream()
+                .map(PostMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     public List<Post> getPostsByUser(User user) {

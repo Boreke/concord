@@ -9,4 +9,5 @@ public class PostResponse {
     private String content;
     private Long userId;
     private String userTag;
+    private long likeCount;
 }
