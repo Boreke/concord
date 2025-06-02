@@ -9,5 +9,5 @@ public class UserRequest {
     private String userTag;
     private String fullName;
     private String role;
-    private Boolean isVerified;
+    private Boolean isPrivate;
 }

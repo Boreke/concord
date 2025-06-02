@@ -1,51 +1,47 @@
 package org.concord.backend.dal.model.postgres;
 
-import org.concord.backend.dal.model.enums.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.*;
+import org.concord.backend.dal.model.enums.Role;
 
-import java.time.LocalDateTime;
+import java.util.*;
 
-@Data
 @Entity
 @Table(name = "users")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Email
-    @NotBlank
-    private String email;
-
-    @NotBlank
-    private String password;
-
-    @NotBlank
-    @Column(unique = true, name = "user_tag")
+    @Column(name = "user_tag", nullable = false, unique = true, length = 64)
     private String userTag;
 
-    @Column(name = "full_name", nullable = true)
-    private String fullName;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    @Column(name = "display_name")
+    @Column(nullable = false)
+    private String password;
+
     private String displayName;
 
-    private String bio;
-
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
+    @Column(length = 20)
+    private Role role = Role.ROLE_USER;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    @Column(name = "is_private")
+    private boolean isPrivate = false;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Post> posts = new ArrayList<>();
 
-    private boolean isVerified;
+    @OneToMany(mappedBy = "followee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Follow> followers = new HashSet<>();
+
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Follow> following = new HashSet<>();
 }

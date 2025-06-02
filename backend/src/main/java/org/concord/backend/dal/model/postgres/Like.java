@@ -6,19 +6,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "follows")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Follow {
+@Table(name = "likes")
+public class Like {
     @EmbeddedId
-    private FollowId id;
+    private LikeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("followerId")
-    private User follower;
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("followeeId")
-    private User followee;
+    @MapsId("postId")
+    @JoinColumn(name = "post_id")
+    private Post post;
 }

@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class UserResponse {
     private Long id;
+    private String displayName;
     private String email;
-    private String userTag;
-    private String fullName;
+    private boolean isPrivate;
     private String role;
-    private Boolean isVerified;
+    private String userTag;
 }

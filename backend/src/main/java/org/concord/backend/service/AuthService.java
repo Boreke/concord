@@ -46,9 +46,8 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setUserTag(request.getUserTag());
-        user.setFullName(request.getFullName());
-        user.setRole(Role.USER);
-        user.setVerified(true);
+        user.setDisplayName(request.getDisplayName());
+        user.setRole(Role.ROLE_USER);
 
         userRepository.save(user);
 

@@ -3,10 +3,8 @@ package org.concord.backend.dto.response;
 import lombok.Data;
 
 @Data
-public class PostResponse {
+public class UserShortResponse {
     private Long id;
-    private String title;
-    private String content;
-    private Long userId;
+    private String displayName;
     private String userTag;
 }

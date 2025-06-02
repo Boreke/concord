@@ -86,8 +86,8 @@ public class JwtService {
     }
 
     public boolean validUSERPerformAction(String objectId) {
-        return (userHasRole(Role.ADMIN.toString()) ||
-                userHasRole(Role.SUPER_ADMIN.toString()) ||
+        return (userHasRole(Role.ROLE_ADMIN.toString()) ||
+                userHasRole(Role.ROLE_SUPER_ADMIN.toString()) ||
                 objectId.equals(getLoggedId()));
 
     }
