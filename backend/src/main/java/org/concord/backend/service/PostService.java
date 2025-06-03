@@ -70,13 +70,10 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 1. Posts likés par le user
         List<Long> likedPostIds = likeRepository.findPostIdsByUserId(userId);
 
-// 2. Tous les likes des autres utilisateurs
         List<Like> otherLikes = likeRepository.findAllByUserIdNot(userId);
 
-// 3. On filtre les utilisateurs ayant au moins un post en commun liké
         Map<Long, Integer> userInCommon = new HashMap<>();
         for (Like like : otherLikes) {
             if (likedPostIds.contains(like.getPost().getId())) {
@@ -84,7 +81,6 @@ public class PostService {
             }
         }
 
-// 4. On prend les posts qu’ils ont likés hors de l’intersection
         Map<Post, Integer> scoreMap = new HashMap<>();
         for (Like like : otherLikes) {
             Long likerId = like.getUser().getId();
@@ -95,10 +91,6 @@ public class PostService {
             }
         }
 
-
-        System.out.println("Score Map Size: " + scoreMap.size());
-        System.out.println("User Liked Posts: " + otherLikes.size());
-        System.out.println("Friend Liked Posts: " + userInCommon.size());
         Map<Integer, Long> distribution = scoreMap.values().stream()
                 .collect(Collectors.groupingBy(i -> i, Collectors.counting()));
 
