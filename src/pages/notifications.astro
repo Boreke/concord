@@ -6,7 +6,7 @@ import SearchSection from "../components/SearchSection.astro";
 ---
 
 <Layout>
-  <main class="flex flex-1 flex-col items-center border-x border-primary gap-4">
+  <main class="flex flex-1 flex-col items-center border-x border-primary gap-4 h-screen">
     {postTemplate.map((post) => <Notification post={post} />)}
   </main>
   <SearchSection />
