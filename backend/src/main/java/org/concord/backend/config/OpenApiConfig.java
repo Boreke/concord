@@ -38,7 +38,7 @@ public class OpenApiConfig {
                 )
                 .servers(List.of(
                         new Server()
-                                .url("https://concord-api.duckdns.org")
+                                .url("https://concord-api.duckdns.org/concord")
                                 .description("Production Server")
                 ));
     }
