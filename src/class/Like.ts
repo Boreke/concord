@@ -1,22 +1,25 @@
 export class Like {
-    constructor(userId, postId) {
+    userId: number;
+    postId: number;
+
+    constructor(userId: number, postId: number) {
         this.userId = userId;
         this.postId = postId;
     }
 
-    getUserId() {
+    getUserId(): number {
         return this.userId;
     }
 
-    getPostId() {
+    getPostId(): number {
         return this.postId;
     }
 
-    toString() {
+    toString(): string {
         return `Like: ${this.userId} liked post ${this.postId}`;
     }
 
-    static fromAPI(response) {
+    static fromAPI(response: any): Like {
         return new Like(
             response.userId,
             response.postId

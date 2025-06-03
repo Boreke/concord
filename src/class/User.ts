@@ -1,6 +1,13 @@
 export class User {
-    
-    constructor(id, userTag, email, displayName, role, createdAt, isPrivate = false) {
+    id: number;
+    userTag: string;
+    email: string;
+    displayName: string;
+    role: string;
+    createdAt: string;
+    _isPrivate: boolean;
+
+    constructor(id: number, userTag: string, email: string, displayName: string, role: string, createdAt: string, isPrivate = false) {
         this.id = id;
         this.userTag = userTag;
         this.email = email;
@@ -10,39 +17,39 @@ export class User {
         this._isPrivate = isPrivate;
     }
 
-    getId() {
+    getId(): number {
         return this.id;
     }
 
-    getEmail() {
+    getEmail(): string {
         return this.email;
     }
 
-    setEmail(email) {
+    setEmail(email: string) {
         this.email = email;
     }
-    setRole(role) {
+    setRole(role: string) {
         this.role = role;
     }
-    setPrivate(isPrivate) {
-        this.isPrivate = isPrivate;
+    setPrivate(isPrivate: boolean) {
+        this._isPrivate = isPrivate;
     }
-    getRole() {
+    getRole(): string {
         return this.role;
     }
-    getDisplayName() {
+    getDisplayName(): string {
         return this.displayName;
     }
-    getUserTag() {
+    getUserTag(): string {
         return this.userTag;
     }
-    isPrivate() {
-        return this.isPrivate;
+    isPrivate(): boolean {
+        return this._isPrivate;
     }
-    toString() {
+    toString(): string {
         return `User: ${this.userTag} (${this.displayName})`;
     }
-    static fromAPI(response) {
+    static fromAPI(response: any): User {
         return new User(
             response.id,
             response.userTag,

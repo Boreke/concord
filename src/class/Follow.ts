@@ -1,20 +1,23 @@
 export class Follow {
-    constructor(followerId, followeeId) {
+    followerId: number;
+    followeeId: number;
+
+    constructor(followerId: number, followeeId: number) {
         this.followerId = followerId;
         this.followeeId = followeeId;
     }
-    getFollowerId() {
+    getFollowerId(): number {
         return this.followerId;
     }
 
-    getFolloweeId() {
+    getFolloweeId(): number {
         return this.followeeId;
     }
 
-    toString() {
+    toString(): string {
         return `Follow: ${this.followerId} -> ${this.followeeId}`;
     }
-    static fromAPI(response){
+    static fromAPI(response:any): Follow {
         return new Follow(
             response.followerId,
             response.followeeId
