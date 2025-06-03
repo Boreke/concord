@@ -25,7 +25,7 @@ export class UserService {
             throw new Error('Failed to fetch current user');
         }
         UserService.currentUser = await response.json();
-        AuthService.refreshToken();
+        await AuthService.refreshToken();
         return User.fromAPI(UserService.currentUser);
     }
 
