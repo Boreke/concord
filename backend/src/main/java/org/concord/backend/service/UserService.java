@@ -11,9 +11,12 @@ import org.concord.backend.dal.model.postgres.User;
 import org.concord.backend.dal.postgres.repository.FollowRepository;
 import org.concord.backend.dal.postgres.repository.LikeRepository;
 import org.concord.backend.dal.postgres.repository.UserRepository;
+import org.concord.backend.dto.request.UserRequest;
+import org.concord.backend.dto.request.UserUpdateRequest;
 import org.concord.backend.dto.response.UserResponse;
 import org.concord.backend.dto.response.UserShortResponse;
 import org.concord.backend.mapper.UserMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class UserService {
     private final FollowRepository followRepository;
     private final LikeRepository likeRepository;
     private final JwtTokenUtil jwtTokenUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -157,4 +161,17 @@ public class UserService {
                 .toList();
     }
 
+    @Transactional()
+    public User updateUser(Long id , UserUpdateRequest userUpdateRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        user.setUserTag(userUpdateRequest.getUserTag());
+        user.setEmail(userUpdateRequest.getEmail());
+        user.setDisplayName(userUpdateRequest.getDisplayName());
+        user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        user.setPrivate(userUpdateRequest.getIsPrivate());
+
+        return userRepository.save(user);
+    }
 }

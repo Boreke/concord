@@ -3,6 +3,8 @@ package org.concord.backend.controller;
 import lombok.RequiredArgsConstructor;
 import org.concord.backend.dal.model.postgres.User;
 import org.concord.backend.dto.request.UserIdRequest;
+import org.concord.backend.dto.request.UserRequest;
+import org.concord.backend.dto.request.UserUpdateRequest;
 import org.concord.backend.dto.response.UserResponse;
 import org.concord.backend.dto.response.UserShortResponse;
 import org.concord.backend.mapper.UserMapper;
@@ -35,6 +37,18 @@ public class UserController {
         String token = authHeader.substring(7);
         User user = userService.getCurrentUserFromToken(token);
         return ResponseEntity.ok(UserMapper.toResponse(user));
+    }
+
+    @PostMapping("/me")
+    public ResponseEntity<UserResponse> updateMe(@RequestHeader("Authorization") String authHeader, @RequestBody UserUpdateRequest userUpdateRequest) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String token = authHeader.substring(7);
+        User user = userService.getCurrentUserFromToken(token);
+        User updatedUser = userService.updateUser(user.getId(), userUpdateRequest);
+        return ResponseEntity.ok(UserMapper.toResponse(updatedUser));
     }
 
     @GetMapping("/{id}")

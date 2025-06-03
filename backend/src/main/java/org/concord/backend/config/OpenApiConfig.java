@@ -40,6 +40,9 @@ public class OpenApiConfig {
                         new Server()
                                 .url("https://concord-api.duckdns.org/concord")
                                 .description("Production Server")
+                        , new Server()
+                                .url("http://localhost:8080/concord")
+                                .description("Local Development Server")
                 ));
     }
 
