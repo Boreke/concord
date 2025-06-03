@@ -1,5 +1,10 @@
 export class Post{
-    constructor(id, userId,title, content, createdAt) {
+    id: number;
+    userId: number;
+    title: string;
+    content: string;
+    createdAt: string;
+    constructor(id: number, userId: number, title: string, content: string, createdAt: string) {
         this.id = id;
         this.userId = userId;
         this.title = title;
@@ -7,42 +12,38 @@ export class Post{
         this.createdAt = createdAt;
     }
 
-    getId() {
+    getId(): number {
         return this.id;
     }
 
-    getUserId() {
+    getUserId(): number {
         return this.userId;
     }
 
-    getContent() {
+    getContent(): string {
         return this.content;
     }
 
-    getCreatedAt() {
+    getCreatedAt(): string {
         return this.createdAt;
     }
 
-    getUpdatedAt() {
-        return this.updatedAt;
-    }
-
-    setTitle(title) {
+    setTitle(title: string) {
         this.title = title;
     }
 
-    getTitle() {
+    getTitle(): string {
         return this.title;
     }
-    setContent(content) {
+    setContent(content: string) {
         this.content = content;
     }
 
-    toString() {
+    toString(): string {
         return `Post by User ${this.userId}: ${this.content}`;
     }
-    
-    static fromAPI(response){
+
+    static fromAPI(response: any): Post {
         return new Post(
             response.id,
             response.userId,

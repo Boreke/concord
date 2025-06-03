@@ -1,7 +1,8 @@
+import type { Post } from "../class/Post";
 import { env } from "../constants/env";
 
 export class PostService {
-    posts: any[];
+    posts: Post[];
     constructor() {
         this.posts = [];
     }
@@ -15,13 +16,13 @@ export class PostService {
         return this.posts;
     }
 
-    async createPost(postData: any) {
+    async createPost(post: Post) {
         const response = await fetch(`${env.API_URL}/posts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(postData),
+            body: JSON.stringify(post),
         });
         if (!response.ok) {
             throw new Error('Failed to create post');
