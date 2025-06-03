@@ -4,39 +4,14 @@ export class Post{
     title: string;
     content: string;
     createdAt: string;
-    constructor(id: number, userId: number, title: string, content: string, createdAt: string) {
+    likeCount: number;
+    constructor(id: number, userId: number, title: string, content: string, createdAt: string, likeCount: number) {
         this.id = id;
         this.userId = userId;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
-    }
-
-    getId(): number {
-        return this.id;
-    }
-
-    getUserId(): number {
-        return this.userId;
-    }
-
-    getContent(): string {
-        return this.content;
-    }
-
-    getCreatedAt(): string {
-        return this.createdAt;
-    }
-
-    setTitle(title: string) {
-        this.title = title;
-    }
-
-    getTitle(): string {
-        return this.title;
-    }
-    setContent(content: string) {
-        this.content = content;
+        this.likeCount = likeCount || 0;
     }
 
     toString(): string {
@@ -49,7 +24,8 @@ export class Post{
             response.userId,
             response.title,
             response.content,
-            response.createdAt
+            response.createdAt,
+            response.likeCount || 0 // Default to 0 if likeCount is not provided
         )
     }
 
