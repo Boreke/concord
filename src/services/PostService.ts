@@ -6,21 +6,26 @@ export class PostService {
     static posts: Post[] = [];
     constructor() {}
 
-    static async fetchPosts() {
-        const response = await fetch(`${env.API_URL}/posts`);
+    static async fetchPosts(token: string) {
+        const response = await fetch(`${env.API_URL}/posts`,{
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
+        });
         if (!response.ok) {
-            throw new Error('Failed to fetch posts');
+            console.log(`Failed to fetch posts: ${response.statusText}`);
+        } else {
+            PostService.posts = await response.json();
+            return PostService.posts;
         }
-        PostService.posts = await response.json();
-        return PostService.posts;
     }
 
-    static async createPost(post: Post) {
+    static async createPost(post: Post, token: string) {
         const response = await fetch(`${env.API_URL}/posts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(post),
         });
@@ -32,8 +37,8 @@ export class PostService {
         PostService.posts.push(Post.fromAPI(newPostJson));
     }
 
-    static async likePost(postId: number) {
-        const currentUser= UserService.currentUser;
+    static async likePost(postId: number, token: string) {
+        const currentUser = UserService.currentUser;
         if (!currentUser) {
             throw new Error('Current user is not authenticated');
         }
@@ -41,7 +46,7 @@ export class PostService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 currentUserId: currentUser.id
@@ -57,7 +62,7 @@ export class PostService {
         }
     }
 
-    static async unlikePost(postId: number) {
+    static async unlikePost(postId: number, token: string) {
         const currentUser = UserService.currentUser;
         if (!currentUser) {
             throw new Error('Current user is not authenticated');
@@ -66,7 +71,7 @@ export class PostService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 currentUserId: currentUser.id
@@ -81,4 +86,19 @@ export class PostService {
         }
     }
 
+    static async fetchRecommendedPosts(userId: number | undefined, token: string) {
+        const response = await fetch(`${env.API_URL}/posts/${userId}/recommended-posts`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            console.log(`Failed to fetch recommended posts: ${response.statusText}`);
+            
+            throw new Error('Failed to fetch recommended posts: ' + response.statusText);
+        }
+        const recommendedPosts = await response.json();
+        return recommendedPosts.map((post: any) => Post.fromAPI(post));
+    }
 }

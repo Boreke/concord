@@ -3,11 +3,32 @@ import Layout from "../layouts/Layout.astro";
 import Notification from "../components/Notification.astro";
 import { postTemplate } from "../constants/postTemplate";
 import SearchSection from "../components/SearchSection.astro";
+import { UserService } from "../services/UserService";
+import { PostService } from "../services/PostService";
+import type { User } from "../class/User";
+
+const token = Astro.cookies.get("token")?.value;
+const posts = await (async () => {
+  const user = await UserService.fetchCurrentUser(token!);
+  if (user) {
+    const following = await UserService.fetchFollowing(user.id, token!);
+    const postsArrays = await Promise.all(
+      following.map(async (followedUser: User) => {
+        return await PostService.fetchUserPosts(followedUser.id, token!);
+      })
+    );
+    return postsArrays.flat();
+  } else {
+    return [];
+  }
+})();
 ---
 
 <Layout>
   <main class="flex flex-1 flex-col items-center border-x border-primary gap-4 h-screen">
-    {postTemplate.map((post) => <Notification post={post} />)}
+    {
+      posts ? posts.map((post) => <Notification post={post} />) : <p class="text-primary text-xl">No notifications</p>
+    }
   </main>
   <SearchSection />
 </Layout>

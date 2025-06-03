@@ -1,12 +1,16 @@
 ---
+import { UserService } from "../services/UserService";
+
 const { post } = Astro.props;
+const token = Astro.cookies.get("token")?.value;
+const user = await UserService.fetchUserById(post.userId, token!);
 ---
 <div class="w-full border-b-[1px] border-primary p-2 h-fit">
     <div class="flex items-center gap-2">
         <img src="/logo.svg" alt="user picture" class="h-10 w-10 rounded-full" />
         <div class="flex flex-col justify-center">
-            <h1 class="text-primary font-semibold text-lg">{post.userName}</h1>
-            <p class="text-sm text-gray-500 -mt-1.5">{post.userID}</p>
+            <h1 class="text-primary font-semibold text-lg">{user?.displayName}</h1>
+            <p class="text-sm text-gray-500 -mt-1.5">{user?.id}</p>
         </div>
     </div>
     <div class="ml-8 px-4 -mt-2">

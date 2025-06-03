@@ -2,12 +2,16 @@ import { User } from '../class/User.js';
 import { env } from '../constants/env.js';
 import { AuthService } from './AuthService.js';
 export class UserService {
-    static currentUser: User | null;
+    static currentUser: User | null = null;
     static users: User[];
     constructor() {}
 
-    static async fetchUsers() {
-        const response = await fetch(`${env.API_URL}/users`);
+    static async fetchUsers(token: string) {
+        const response = await fetch(`${env.API_URL}/users`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch users');
         }
@@ -15,32 +19,33 @@ export class UserService {
         return UserService.users;
     }
 
-    static async fetchCurrentUser() {
+    static async fetchCurrentUser(token: string) {
         const response = await fetch(`${env.API_URL}/users/me`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
-            throw new Error('Failed to fetch current user');
+            window.location.href = '/login';
         }
-        UserService.currentUser = await response.json();
-        await AuthService.refreshToken();
-        return User.fromAPI(UserService.currentUser);
+        let currentUser = await response.json();
+        
+        UserService.currentUser = User.fromAPI(currentUser);
+        return User.fromAPI(currentUser);
     }
 
-    static async followUser(userToFollowId: number) {
-        const currentUser = UserService.currentUser;
+    static async followUser(userToFollowId: number, token: string) {
+        const currentUser = UserService.currentUser ? UserService.currentUser : null;
         if (!currentUser) {
             throw new Error('Current user is not authenticated');
-        }else if (currentUser.id === userToFollowId) {
+        } else if (currentUser.id === userToFollowId) {
             throw new Error('You cannot follow yourself');
         }
         const response = await fetch(`${env.API_URL}/users/${userToFollowId}/follow`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 currentUserId: currentUser?.id
@@ -51,7 +56,7 @@ export class UserService {
         }
     }
 
-    static async unfollowUser(userToUnfollowId: number) {
+    static async unfollowUser(userToUnfollowId: number, token: string) {
         const currentUser = UserService.currentUser;
         if (!currentUser) {
             throw new Error('Current user is not authenticated');
@@ -62,7 +67,7 @@ export class UserService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 currentUserId: currentUser?.id
@@ -73,7 +78,7 @@ export class UserService {
         }
     }
 
-    static async fetchRecommendedUsers() {
+    static async fetchRecommendedUsers(token: string) {
         const response = await fetch(`${env.API_URL}/users/recommended`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -86,23 +91,25 @@ export class UserService {
         return data.map((user: any) => User.fromAPI(user));
     }
 
-    static async fetchUserById(userId: number) {
+    static async fetchUserById(userId: number, token: string) {
+        
         const response = await fetch(`${env.API_URL}/users/${userId}`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
-            throw new Error('Failed to fetch user');
+            console.error('Failed to fetch user by ID:', response.statusText);
+            throw new Error('Failed to fetch user by ID');
         }
         const data = await response.json();
         return User.fromAPI(data);
     }
 
-    static async fetchFollowers(userId: number) {
+    static async fetchFollowers(userId: number, token: string) {
         const response = await fetch(`${env.API_URL}/users/${userId}/followers`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
@@ -112,10 +119,10 @@ export class UserService {
         return data.map((user: any) => User.fromAPI(user));
     }
 
-    static async fetchFollowing(userId: number) {
+    static async fetchFollowing(userId: number, token: string) {
         const response = await fetch(`${env.API_URL}/users/${userId}/following`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {

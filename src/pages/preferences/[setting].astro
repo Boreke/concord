@@ -1,67 +1,15 @@
 ---
 import AccountSetting from "../../components/AccountSetting.astro";
-import PasswordSetting from "../../components/PasswordSetting.astro";
-import PrivacySetting from "../../components/PrivacySetting.astro";
-import Layout from "../../layouts/Layout.astro"
-let {setting}=Astro.params
-if (!setting||!['account', 'password', 'privacy'].includes(setting)) {
-    return Astro.redirect('/preferences/account');
+import Layout from "../../layouts/Layout.astro";
+let { setting } = Astro.params;
+if (!setting || !["account"].includes(setting)) {
+  return Astro.redirect("/preferences/account");
 }
 ---
 
 <Layout>
-    <section class="border-l border-primary ">
-        <div class="flex items-center p-4 py-2 mt-3 bg-white">
-            <h1 class="text-primary font-semibold text-lg">Preferences</h1>
-        </div>
-        <div>
-            <ul>
-                <li class="p-4">
-                    <a href="/preferences/account" class=" w-full p-2 text-left rounded-lg cursor-pointer outline-none " onclick="getPreferences('account')">
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                            </svg>
-                            <h2 class="text-primary font-semibold text-lg">Account information</h2>
-                        </div>
-                        <p class="text-gray-500 text-sm ml-8">Email, phone number, ...</p>
-                    </a>
-                </li>
-                <li class="p-4">
-                    <a href="/preferences/password" class=" w-full p-2 text-left rounded-lg cursor-pointer outline-none " onclick="getPreferences('password')">
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                            </svg>
-                            <h2 class="text-primary font-semibold text-lg">Modify password</h2>
-                        </div>
-                        <p class="text-gray-500 text-sm ml-8">Modify your password</p>
-                    </a>
-                </li>
-                <li class="p-4">
-                    <a href="/preferences/privacy" class=" w-full p-2 text-left rounded-lg cursor-pointer outline-none" onclick="getPreferences('privacy')">
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                            </svg>
-                            <h2 class="text-primary font-semibold text-lg">Privacy</h2>
-                        </div>
-                        <p class="text-gray-500 text-sm ml-8">Private or public profile?</p>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </section>
-    <section class="border-l border-primary w-10/12 " id="preferencesSection">
-        {(() => {
-            switch (setting) {
-                case 'account':
-                    return <AccountSetting/>;
-                case 'password':
-                    return <PasswordSetting/>
-                case 'privacy':
-                    return <PrivacySetting/>
-            }
-        })}
-    </section>
-</Layout>   
+  <section class="border-l border-primary w-10/12" id="preferencesSection">
+    <AccountSetting />
+  </section>
+</Layout>
+

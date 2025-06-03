@@ -1,14 +1,17 @@
 ---
+import { UserService } from "../services/UserService";
 
+
+const user = await UserService.fetchCurrentUser(Astro.cookies.get("token")?.value!);
 ---
 
 <div class="w-full border-primary p-2 h-fit">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <img src="/logo.svg" alt="user picture" class="h-10 w-10 rounded-full" />
+            <img src="/logo.svg" alt="user" class="h-10 w-10 rounded-full" />
             <div class="flex flex-col justify-center">
-                <h1 class="text-primary font-semibold text-lg">Username</h1>
-                <p class="text-sm text-gray-500 -mt-1.5">@usertag</p>
+                <h1 class="text-primary font-semibold text-lg">{user?.displayName}</h1>
+                <p class="text-sm text-gray-500 -mt-1.5">@{user?.userTag}</p>
             </div>
         </div>
         <button class="btn-primary">Post</button>
