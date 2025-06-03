@@ -2,8 +2,9 @@ package org.concord.backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.concord.backend.dal.model.postgres.User;
+import org.concord.backend.dal.model.postgres.UserPP;
+import org.concord.backend.dal.postgres.repository.UserPPRepository;
 import org.concord.backend.dto.request.UserIdRequest;
-import org.concord.backend.dto.request.UserRequest;
 import org.concord.backend.dto.request.UserUpdateRequest;
 import org.concord.backend.dto.response.UserResponse;
 import org.concord.backend.dto.response.UserShortResponse;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -22,6 +22,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final UserPPRepository userPPRepository;
 
     @GetMapping
     public List<UserResponse> getAllUsers() {
@@ -36,7 +37,10 @@ public class UserController {
 
         String token = authHeader.substring(7);
         User user = userService.getCurrentUserFromToken(token);
-        return ResponseEntity.ok(UserMapper.toResponse(user));
+        String userPPUrl = userPPRepository.findByUser(user)
+                .orElse(new UserPP(user, "https://concord-images.s3.eu-north-1.amazonaws.com/init/PPinit.webp"))
+                .getProfilePictureUrl();
+        return ResponseEntity.ok(UserMapper.toResponse(user, userPPUrl));
     }
 
     @PostMapping("/me")
@@ -48,7 +52,10 @@ public class UserController {
         String token = authHeader.substring(7);
         User user = userService.getCurrentUserFromToken(token);
         User updatedUser = userService.updateUser(user.getId(), userUpdateRequest);
-        return ResponseEntity.ok(UserMapper.toResponse(updatedUser));
+        String userPPUrl = userPPRepository.findByUser(updatedUser)
+                .orElse(new UserPP(updatedUser, "https://concord-images.s3.eu-north-1.amazonaws.com/init/PPinit.webp"))
+                .getProfilePictureUrl();
+        return ResponseEntity.ok(UserMapper.toResponse(updatedUser, userPPUrl));
     }
 
     @GetMapping("/{id}")

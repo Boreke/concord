@@ -10,4 +10,5 @@ public class UserResponse {
     private boolean isPrivate;
     private String role;
     private String userTag;
+    private String profileImageUrl;
 }

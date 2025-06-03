@@ -4,14 +4,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.concord.backend.config.jwt.JwtTokenUtil;
-import org.concord.backend.dal.model.postgres.Follow;
-import org.concord.backend.dal.model.postgres.FollowId;
-import org.concord.backend.dal.model.postgres.Like;
-import org.concord.backend.dal.model.postgres.User;
+import org.concord.backend.dal.model.postgres.*;
 import org.concord.backend.dal.postgres.repository.FollowRepository;
 import org.concord.backend.dal.postgres.repository.LikeRepository;
+import org.concord.backend.dal.postgres.repository.UserPPRepository;
 import org.concord.backend.dal.postgres.repository.UserRepository;
-import org.concord.backend.dto.request.UserRequest;
 import org.concord.backend.dto.request.UserUpdateRequest;
 import org.concord.backend.dto.response.UserResponse;
 import org.concord.backend.dto.response.UserShortResponse;
@@ -32,19 +29,31 @@ public class UserService {
     private final LikeRepository likeRepository;
     private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
+    private final UserPPRepository userPPRepository;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(UserMapper::toResponse)
-                .collect(Collectors.toList());
+                .map(user -> {
+                    String userPPUrl = userPPRepository.findByUser(user)
+                            .orElse(new UserPP(user, "https://concord-images.s3.eu-north-1.amazonaws.com/init/PPinit.webp"))
+                            .getProfilePictureUrl();
+                    return UserMapper.toResponse(user, userPPUrl);
+                })
+                .toList();
     }
 
     public UserResponse getUserById(Long id) {
         return userRepository.findById(id)
-                .map(UserMapper::toResponse)
+                .map(user -> {
+                    String userPPUrl = userPPRepository.findByUser(user)
+                            .orElse(new UserPP(user, "https://concord-images.s3.eu-north-1.amazonaws.com/init/PPinit.webp"))
+                            .getProfilePictureUrl();
+                    return UserMapper.toResponse(user, userPPUrl);
+                })
                 .orElseThrow();
     }
 
+    @Transactional(readOnly = true)
     public User getCurrentUserFromToken(String token) {
         DecodedJWT jwt = jwtTokenUtil.decodeToken(token);
         Long userId = Long.valueOf(jwt.getClaim("id").asString());
