@@ -12,11 +12,12 @@ public class PostMapper {
         postResponse.setContent(post.getContent());
         postResponse.setUserId(post.getUser().getId());
         postResponse.setUserTag(post.getUser().getUserTag());
-        if (Hibernate.isInitialized(post.getLikedBy())) {
-            postResponse.setLikeCount(post.getLikedBy().size());
+        if (Hibernate.isInitialized(post.getLikes())) {
+            postResponse.setLikeCount(post.getLikes().size());
         } else {
             postResponse.setLikeCount(0);
         }
+        postResponse.setCreatedAt(post.getCreatedAt());
         return postResponse;
     }
 }

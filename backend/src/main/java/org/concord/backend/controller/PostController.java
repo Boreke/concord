@@ -39,4 +39,10 @@ public class PostController {
         postService.unlikePost(id, user.getCurrentUserId());
         return ResponseEntity.ok("Post unliked");
     }
+
+    @GetMapping("/{id}/recommended-posts")
+    public ResponseEntity<List<PostResponse>> getRecommendedPosts(@PathVariable Long id) {
+        List<PostResponse> posts = postService.getRecommendedPosts(id);
+        return ResponseEntity.ok(posts);
+    }
 }

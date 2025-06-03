@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -12,13 +13,14 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"user", "likes", "likedBy"})
+@ToString(exclude = {"likes"})
 public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT")
@@ -31,11 +33,6 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToMany
-    @JoinTable(
-            name = "likes",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> likedBy = new HashSet<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Like> likes = new HashSet<>();
 }
