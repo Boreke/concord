@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@Embeddable
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class LikeId implements Serializable {
-    private Long userId;
-    private Long postId;
+    private Long user;
+    private Long post;
 }

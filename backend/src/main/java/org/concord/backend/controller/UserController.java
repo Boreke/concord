@@ -1,10 +1,13 @@
 package org.concord.backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.concord.backend.dal.model.postgres.User;
 import org.concord.backend.dto.request.UserIdRequest;
 import org.concord.backend.dto.response.UserResponse;
 import org.concord.backend.dto.response.UserShortResponse;
+import org.concord.backend.mapper.UserMapper;
 import org.concord.backend.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +24,17 @@ public class UserController {
     @GetMapping
     public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> findMe(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String token = authHeader.substring(7);
+        User user = userService.getCurrentUserFromToken(token);
+        return ResponseEntity.ok(UserMapper.toResponse(user));
     }
 
     @GetMapping("/{id}")

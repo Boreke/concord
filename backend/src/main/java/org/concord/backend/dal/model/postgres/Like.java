@@ -15,12 +15,12 @@ public class Like {
     private LikeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userId")
+    @MapsId("user")
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("postId")
+    @MapsId("post")
     @JoinColumn(name = "post_id")
     private Post post;
 }

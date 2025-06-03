@@ -1,6 +1,9 @@
 package org.concord.backend.service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.concord.backend.config.jwt.JwtTokenUtil;
 import org.concord.backend.dal.model.postgres.Follow;
 import org.concord.backend.dal.model.postgres.FollowId;
 import org.concord.backend.dal.model.postgres.Like;
@@ -24,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
     private final LikeRepository likeRepository;
+    private final JwtTokenUtil jwtTokenUtil;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -37,16 +41,11 @@ public class UserService {
                 .orElseThrow();
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public Optional<User> getUserByUserTag(String userTag) {
-        return userRepository.findByUserTag(userTag);
-    }
-
-    public User save(User user) {
-        return userRepository.save(user);
+    public User getCurrentUserFromToken(String token) {
+        DecodedJWT jwt = jwtTokenUtil.decodeToken(token);
+        Long userId = Long.valueOf(jwt.getClaim("id").asString());
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     public void follow(Long followerId, Long followeeId) {
@@ -80,41 +79,28 @@ public class UserService {
                 .toList();
     }
 
-    private UserShortResponse toShortResponse(User user) {
-        UserShortResponse dto = new UserShortResponse();
-        dto.setId(user.getId());
-        dto.setDisplayName(user.getDisplayName());
-        dto.setUserTag(user.getUserTag());
-        return dto;
-    }
-
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    public boolean existsByUserTag(String userTag) {
-        return userRepository.existsByUserTag(userTag);
-    }
-
     @Transactional(readOnly = true)
     public List<UserShortResponse> getRecommendations(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<User> following = followRepository.findAllByFollower(user).stream()
-                .map(Follow::getFollowee)
-                .toList();
+        List<User> following = followRepository.findAllByFollower(user)
+                .stream().map(Follow::getFollowee).toList();
+
+        Set<Long> followingIds = following.stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
 
         Set<Long> likedPostIds = user.getLikes().stream()
                 .map(like -> like.getPost().getId())
                 .collect(Collectors.toSet());
 
-        boolean hasNoInteractions = likedPostIds.isEmpty() && followRepository.findAllByFollower(user).isEmpty();
+        boolean hasNoInteractions = likedPostIds.isEmpty() && following.isEmpty();
 
         List<User> sameLikers = likeRepository.findAll().stream()
                 .filter(like -> likedPostIds.contains(like.getPost().getId()))
                 .map(Like::getUser)
-                .filter(likedUser -> !likedUser.getId().equals(userId))
+                .filter(u -> !u.getId().equals(userId))
                 .toList();
 
         Map<Long, Integer> scoreMap = new HashMap<>();
@@ -124,11 +110,21 @@ public class UserService {
         }
 
         for (User u : following) {
-            List<User> uFollowing = followRepository.findAllByFollower(u).stream()
+            List<User> secondDegree = followRepository.findAllByFollower(u).stream()
                     .map(Follow::getFollowee)
                     .filter(f -> !f.getId().equals(userId))
                     .toList();
-            for (User suggested : uFollowing) {
+            for (User suggested : secondDegree) {
+                scoreMap.merge(suggested.getId(), 1, Integer::sum);
+            }
+        }
+
+        for (User u : following) {
+            List<User> followersOfFollowee = followRepository.findAllByFollowee(u).stream()
+                    .map(Follow::getFollower)
+                    .filter(f -> !f.getId().equals(userId))
+                    .toList();
+            for (User suggested : followersOfFollowee) {
                 scoreMap.merge(suggested.getId(), 1, Integer::sum);
             }
         }
@@ -139,8 +135,9 @@ public class UserService {
                     .collect(Collectors.groupingBy(id -> id, Collectors.counting()))
                     .entrySet().stream()
                     .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
-                    .limit(20)
                     .map(Map.Entry::getKey)
+                    .filter(id -> !id.equals(userId))
+                    .limit(20)
                     .toList();
 
             return popularUserIds.stream()
@@ -151,6 +148,7 @@ public class UserService {
         }
 
         return scoreMap.entrySet().stream()
+                .filter(entry -> !entry.getKey().equals(userId) && !followingIds.contains(entry.getKey()))
                 .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
                 .limit(20)
                 .map(entry -> userRepository.findById(entry.getKey()).orElse(null))
