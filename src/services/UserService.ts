@@ -156,7 +156,8 @@ export class UserService {
             body: formData
         });
         if (!response.ok) {
-            throw new Error('Failed to change profile picture');
+            const errorBody = await response.text();
+            throw new Error(`Failed to change profile picture: ${response.status} - ${errorBody}`);
         }
         return await response.json();
     }

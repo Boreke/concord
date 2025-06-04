@@ -187,16 +187,13 @@
         formData.forEach((value, key) => {
           data[key] = value;
         });
-        console.log("Form data:", data);
         
         if (data["file"]) {
-          console.log("Changing profile picture with file:", data["file"]);
           
           await UserService.changeProfilePicture(data["file"] as File,  token!);
         } else {
           await UserService.updateUserProfile(data, token!);
         }
-        console.log("Form submitted:", data);
       });
     });
   });

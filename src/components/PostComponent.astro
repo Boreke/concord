@@ -12,7 +12,11 @@ const currentUser = await UserService.fetchCurrentUser(token!);
     href={user.id === currentUser.id ? `/profile` : `/user/${user.id}`}
     class="flex items-center gap-2"
   >
-    <img src={user?.profileImageUrl || "/logo.svg"} alt="user picture" class="h-10 w-10 rounded-full" />
+    <img
+      src={user?.profileImageUrl || "/logo.svg"}
+      alt={`${user?.displayName || "User"}'s avatar`}
+      class="h-10 w-10 rounded-full"
+    />
     <div class="flex flex-col justify-center">
       <h1 class="text-primary font-semibold text-lg">{user?.displayName}</h1>
       <p class="text-sm text-gray-500 -mt-1.5">@{user?.userTag}</p>

@@ -11,11 +11,9 @@ const token = Astro.cookies.get("token")?.value;
 if (!token) {
   Astro.redirect("/login");
 }
-console.log("Token:", token);
 
 let currentUser = null;
 let posts;
-let recommendations;
 try {
   currentUser = await UserService.fetchCurrentUser(token!);
 } catch (error) {

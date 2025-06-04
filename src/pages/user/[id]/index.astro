@@ -30,7 +30,6 @@ try {
   console.error("Error fetching user by ID:", error);
   return Astro.redirect("/");
 }
-
 ---
 
 <Layout>
@@ -40,7 +39,11 @@ try {
     </div>
 
     <div class="flex flex-col gap-4 ml-4">
-      <img src={user?.profileImageUrl || "/logo.svg"} alt="Profile Picture" class="h-24 w-24 rounded-full" />
+      <img
+        src={user?.profileImageUrl || "/logo.svg"}
+        alt={`${user?.displayName || "User"}'s profile picture`}
+        class="h-24 w-24 rounded-full"
+      />
     </div>
     <div class="flex items-center gap-4 w-full px-4 justify-between">
       <div class="flex flex-col">
