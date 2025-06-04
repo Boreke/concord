@@ -41,7 +41,7 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toResponse(user, userPPUrl));
     }
 
-    @PostMapping("/me")
+    @PatchMapping("/me")
     public ResponseEntity<UserResponse> updateMe(@RequestHeader("Authorization") String authHeader, @RequestBody UserUpdateRequest userUpdateRequest) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
