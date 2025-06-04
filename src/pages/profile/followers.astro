@@ -1,5 +1,6 @@
 ---
 import type { User } from "../../class/User";
+import UserCard from "../../components/UserCard.astro";
 import Layout from "../../layouts/Layout.astro";
 import { AuthService } from "../../services/AuthService";
 import { UserService } from "../../services/UserService";
@@ -16,7 +17,6 @@ if (!token) {
 }
 const currentUser = await UserService.fetchCurrentUser(token!);
 const followers = await UserService.fetchFollowers(currentUser.id, token!);
-
 ---
 
 <Layout>
@@ -30,26 +30,10 @@ const followers = await UserService.fetchFollowers(currentUser.id, token!);
         {
           followers.length > 0 ? (
             followers.map((user: User) => (
-              <div class="flex items-center gap-4 w-full px-4 justify-between">
-                <div class="flex items-center gap-2">
-                  <img
-                    src="/default-profile.png"
-                    alt="user picture"
-                    class="h-10 w-10 rounded-full"
-                  />
-                  <a href={`/user/${user.id}`} class="flex flex-col">
-                    <h2 class="text-xl text-primary font-bold">
-                      {user.displayName}
-                    </h2>
-                    <p class="text-lg text-primary">@{user.userTag}</p>
-                  </a>
-                </div>
-              </div>
+              <UserCard user={user} currentUserId={currentUser.id} />
             ))
           ) : (
-            <p class="text-lg text-primary">
-              No one is following you yet.
-            </p>
+            <p class="text-lg text-primary">No one is following you yet.</p>
           )
         }
       </div>
