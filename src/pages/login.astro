@@ -45,10 +45,7 @@ import LoginLayout from "../layouts/LoginLayout.astro";
         </span>
       </div>
       <button type="submit" class="btn-primary">Login</button>
-      <a
-        href="/signup"
-        class="text-primary hover:underline text-sm"
-      >
+      <a href="/signup" class="text-primary hover:underline text-sm">
         Don't have an account? Register here
       </a>
     </div>
@@ -87,14 +84,16 @@ import LoginLayout from "../layouts/LoginLayout.astro";
       ?.value;
     const password = (document.getElementById("password") as HTMLInputElement)
       ?.value;
-      if (!userTag || !password) {
-        alert("Please fill in all fields.");
-        return;
-      }
-      if (userTag.match(/[^@\w+]/)) {
-        alert("Invalid userTag format.");
-        return;
-      }
+    if (!userTag || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_@+]+$/.test(userTag)) {
+      alert(
+        "Invalid userTag format. Only alphanumeric characters, underscores, '@', and '+' are allowed."
+      );
+      return;
+    }
     const formData = {
       userTag: userTag,
       password: password,
