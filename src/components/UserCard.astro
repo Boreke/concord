@@ -1,0 +1,23 @@
+---
+const { user, currentUserId } = Astro.props;
+
+---
+
+<div class="flex items-center gap-4 w-full px-4 justify-between">
+  <div class="flex items-center gap-2">
+    <img
+      src="/default-profile.png"
+      alt="user picture"
+      class="h-10 w-10 rounded-full"
+    />
+    <a
+      href={user.id === currentUserId ? `/profile` : `/user/${user.id}`}
+      class="flex flex-col"
+    >
+      <h2 class="text-xl text-primary font-bold">
+        {user.displayName}
+      </h2>
+      <p class="text-lg text-primary">@{user.userTag}</p>
+    </a>
+  </div>
+</div>

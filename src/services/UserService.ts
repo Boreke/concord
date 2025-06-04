@@ -2,12 +2,16 @@ import { User } from '../class/User.js';
 import { env } from '../constants/env.js';
 import { AuthService } from './AuthService.js';
 export class UserService {
-    static currentUser: User | null;
+    static currentUser: User | null = null;
     static users: User[];
     constructor() {}
 
-    static async fetchUsers() {
-        const response = await fetch(`${env.API_URL}/users`);
+    static async fetchUsers(token: string) {
+        const response = await fetch(`${env.API_URL}/users`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch users');
         }
@@ -15,68 +19,52 @@ export class UserService {
         return UserService.users;
     }
 
-    static async fetchCurrentUser() {
+    static async fetchCurrentUser(token: string) {
         const response = await fetch(`${env.API_URL}/users/me`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
             throw new Error('Failed to fetch current user');
         }
-        UserService.currentUser = await response.json();
-        await AuthService.refreshToken();
-        return User.fromAPI(UserService.currentUser);
+        let currentUser = await response.json();
+        
+        UserService.currentUser = User.fromAPI(currentUser);
+        return User.fromAPI(currentUser);
     }
 
-    static async followUser(userToFollowId: number) {
-        const currentUser = UserService.currentUser;
-        if (!currentUser) {
-            throw new Error('Current user is not authenticated');
-        }else if (currentUser.id === userToFollowId) {
-            throw new Error('You cannot follow yourself');
-        }
+    static async followUser(userToFollowId: number, token: string) {
         const response = await fetch(`${env.API_URL}/users/${userToFollowId}/follow`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({
-                currentUserId: currentUser?.id
-            })
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) {
             throw new Error('Failed to follow user');
         }
     }
 
-    static async unfollowUser(userToUnfollowId: number) {
-        const currentUser = UserService.currentUser;
-        if (!currentUser) {
-            throw new Error('Current user is not authenticated');
-        } else if (currentUser.id === userToUnfollowId) {
-            throw new Error('You cannot unfollow yourself');
-        }
+    static async unfollowUser(userToUnfollowId: number, token: string) {
+
         const response = await fetch(`${env.API_URL}/users/${userToUnfollowId}/unfollow`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({
-                currentUserId: currentUser?.id
-            })
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) {
             throw new Error('Failed to unfollow user');
         }
     }
 
-    static async fetchRecommendedUsers() {
-        const response = await fetch(`${env.API_URL}/users/recommended`, {
+    static async fetchRecommendedUsers(id:Number,token: string) {
+        const response = await fetch(`${env.API_URL}/users/${id}/recommendations`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
@@ -86,23 +74,25 @@ export class UserService {
         return data.map((user: any) => User.fromAPI(user));
     }
 
-    static async fetchUserById(userId: number) {
+    static async fetchUserById(userId: number, token: string) {
+        
         const response = await fetch(`${env.API_URL}/users/${userId}`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
-            throw new Error('Failed to fetch user');
+            console.error('Failed to fetch user by ID:', response.statusText);
+            throw new Error('Failed to fetch user by ID');
         }
         const data = await response.json();
         return User.fromAPI(data);
     }
 
-    static async fetchFollowers(userId: number) {
+    static async fetchFollowers(userId: number, token: string) {
         const response = await fetch(`${env.API_URL}/users/${userId}/followers`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
@@ -112,10 +102,10 @@ export class UserService {
         return data.map((user: any) => User.fromAPI(user));
     }
 
-    static async fetchFollowing(userId: number) {
+    static async fetchFollowing(userId: number, token: string) {
         const response = await fetch(`${env.API_URL}/users/${userId}/following`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
@@ -123,5 +113,35 @@ export class UserService {
         }
         const data = await response.json();
         return data.map((user: any) => User.fromAPI(user));
+    }
+
+    static async isUserFollowedByCurrentUser(userId: number, token: string) {
+        const response = await fetch(`${env.API_URL}/users/${userId}/is-followed`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to check if user is followed');
+        }
+        const data = await response.json();
+        return data;
+    }
+
+    static async updateUserProfile(data: { [key: string]: any }, token: string) {
+        const response = await fetch(`${env.API_URL}/users/me`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            throw new Error('Failed to update user profile');
+        }
+        const updatedUser = await response.json();
+        UserService.currentUser = User.fromAPI(updatedUser);
+        return User.fromAPI(updatedUser);
     }
 }

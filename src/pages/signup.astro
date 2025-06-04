@@ -3,14 +3,14 @@ import LoginLayout from "../layouts/LoginLayout.astro";
 ---
 
 <LoginLayout>
-  <form action="" class="flex flex-col items-center gap-8">
+  <form action="" id="signupForm" class="flex flex-col items-center gap-8">
     <h1 class="text-5xl text-primary font-bold text-center mb-8">
       Create an account
     </h1>
     <div class="flex flex-col gap-4">
       <input
         class="border border-primary rounded-md p-2 mt-1 w-80"
-        type="email"
+        type="text"
         id="username"
         placeholder="Username"
         required
@@ -21,8 +21,8 @@ import LoginLayout from "../layouts/LoginLayout.astro";
         <p>@</p>
         <input
           class="outline-none w-full"
-          type="email"
-          id="usertag"
+          type="text"
+          id="userTag"
           placeholder="Tag"
           required
         />
@@ -48,7 +48,9 @@ import LoginLayout from "../layouts/LoginLayout.astro";
           <input
             type="password"
             placeholder="Password"
+            id="password"
             class="outline-none w-full"
+            required
           />
         </div>
         <span id="passwordVisibilityToggle">
@@ -75,7 +77,9 @@ import LoginLayout from "../layouts/LoginLayout.astro";
           <input
             type="password"
             placeholder="Confirm Password"
+            id="confirmPassword"
             class="outline-none w-full"
+            required
           />
         </div>
         <span id="confirmPasswordVisibilityToggle">
@@ -97,9 +101,15 @@ import LoginLayout from "../layouts/LoginLayout.astro";
       </div>
     </div>
     <button type="submit" class="btn-primary">Sign Up</button>
+    <p class="text-center text-gray-500">
+      Already have an account? <a href="/login" class="hover:underline text-primary">Log in</a>
+    </p>
   </form>
 </LoginLayout>
 <script>
+import { AuthService } from "../services/AuthService";
+
+document.addEventListener("DOMContentLoaded", () => {
   const button1 = document.getElementById("passwordVisibilityToggle");
   const button2 = document.getElementById("confirmPasswordVisibilityToggle");
   const openEye =
@@ -134,4 +144,35 @@ import LoginLayout from "../layouts/LoginLayout.astro";
 
   updateInputType(false);
   updateInputType(true);
+
+  const signupForm = document.getElementById("signupForm");
+  signupForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = (document.getElementById("username") as HTMLInputElement)?.value || "";
+    const userTag = (document.getElementById("userTag") as HTMLInputElement)?.value || "";
+    const email = (document.getElementById("email") as HTMLInputElement)?.value || "";
+    const repeatEmail = (document.getElementById("repeatEmail") as HTMLInputElement)?.value || "";
+    const password = (document.getElementById("password") as HTMLInputElement)?.value || "";
+    const confirmPassword = (document.getElementById("confirmPassword") as HTMLInputElement)?.value || "";
+
+    if (email !== repeatEmail) {
+      alert("Emails do not match!");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    const formData = {
+      email: email,
+      password: password,
+      userTag: userTag,
+      displayName: username,
+    };
+    await AuthService.register(formData);
+    window.location.href = "/";
+  });
+});
 </script>
