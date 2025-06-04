@@ -3,7 +3,8 @@ import { UserService } from "../services/UserService";
 import { ensureValidToken } from "../utils/auth";
 
 const { post } = Astro.props;
-await ensureValidToken(Astro);
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const token = Astro.cookies.get("token")?.value;
 const user = await UserService.fetchUserById(post.userId, token!);
 const currentUser = await UserService.fetchCurrentUser(token!);

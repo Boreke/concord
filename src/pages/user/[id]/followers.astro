@@ -5,7 +5,8 @@ import Layout from "../../../layouts/Layout.astro";
 import { UserService } from "../../../services/UserService";
 import { ensureValidToken } from "../../../utils/auth";
 
-await ensureValidToken(Astro);
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const token = Astro.cookies.get("token")?.value;
 const userId = Astro.params.id;
 
@@ -25,10 +26,7 @@ const followers = await UserService.fetchFollowers(user.id, token!);
         {
           followers.length > 0 ? (
             followers.map((user: User) => (
-              <UserCard
-                user={user}
-                currentUserId={currentUser.id}
-              />
+              <UserCard user={user} currentUserId={currentUser.id} />
             ))
           ) : (
             <p class="text-lg text-primary">

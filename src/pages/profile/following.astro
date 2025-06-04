@@ -5,7 +5,8 @@ import Layout from "../../layouts/Layout.astro";
 import { UserService } from "../../services/UserService";
 import { ensureValidToken } from "../../utils/auth";
 
-await ensureValidToken(Astro);
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const token = Astro.cookies.get("token")?.value;
 const currentUser = await UserService.fetchCurrentUser(token!);
 
@@ -22,11 +23,9 @@ const following = await UserService.fetchFollowing(currentUser.id, token!);
       <div class="flex flex-col gap-4 ml-4 overflow-auto">
         {
           following.length > 0 ? (
-            following.map(
-              (user: User) => (
-                <UserCard user={user} currentUserId={currentUser.id} />
-              )
-            )
+            following.map((user: User) => (
+              <UserCard user={user} currentUserId={currentUser.id} />
+            ))
           ) : (
             <p class="text-lg text-primary">
               You are not following anyone yet.

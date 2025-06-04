@@ -5,8 +5,12 @@ export async function ensureValidToken(Astro: any) {
   const refreshToken = Astro.cookies.get('refreshToken')?.value;
   if (!token && refreshToken) {
     try {
-      await AuthService.refreshToken(refreshToken);
-      return true;
+      await AuthService.refreshToken(refreshToken).then((data: any) => {
+        if (data) {
+          Astro.cookies.set('token', data.token, { path: '/', maxAge: 3600, sameSite: 'strict' });
+          Astro.cookies.set('refreshToken', data.refreshToken, { path: '/', maxAge: 604800, sameSite: 'strict' });
+        }
+      });
     } catch (error) {
       console.error("Error refreshing token:", error);
       return Astro.redirect('/login');
@@ -15,5 +19,4 @@ export async function ensureValidToken(Astro: any) {
   if (!token) {
     return Astro.redirect('/login');
   }
-  return true;
 }

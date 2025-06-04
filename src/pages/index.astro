@@ -13,7 +13,8 @@ var pageName = Astro.originPathname.split("/").pop();
 pageName = !pageName ? "home" : pageName;
 const pageTitle = pageName.charAt(0).toUpperCase() + pageName.slice(1);
 
-await ensureValidToken(Astro);
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const token = Astro.cookies.get("token")?.value;
 
 let currentUser;

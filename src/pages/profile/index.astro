@@ -7,7 +7,8 @@ import { PostService } from "../../services/PostService";
 import { UserService } from "../../services/UserService";
 import { ensureValidToken } from "../../utils/auth";
 
-await ensureValidToken(Astro);
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const token = Astro.cookies.get("token")?.value;
 
 let currentUser = null;
@@ -16,7 +17,6 @@ try {
   currentUser = await UserService.fetchCurrentUser(token!);
 } catch (error) {
   console.error("Error fetching current user:", error);
-  
 }
 if (currentUser) {
   try {
