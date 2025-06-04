@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.concord.backend.dal.model.postgres.User;
 import org.concord.backend.dto.request.PostRequest;
 import org.concord.backend.dto.response.PostResponse;
+import org.concord.backend.exceptions.http.HttpUnauthorizedException;
 import org.concord.backend.service.PostService;
 import org.concord.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class PostController {
     @PostMapping("/{id}/like")
     public ResponseEntity<String> likePost(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body("Unauthorized");
+            throw  new HttpUnauthorizedException("No authorization header provided");
         }
         String token = authHeader.substring(7);
         User user = userService.getCurrentUserFromToken(token);
@@ -44,7 +45,7 @@ public class PostController {
     @PostMapping("/{id}/unlike")
     public ResponseEntity<String> unlikePost(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body("Unauthorized");
+            throw  new HttpUnauthorizedException("No authorization header provided");
         }
         String token = authHeader.substring(7);
         User user = userService.getCurrentUserFromToken(token);
@@ -61,7 +62,7 @@ public class PostController {
     @GetMapping("/user/{id}")
     public ResponseEntity<List<PostResponse>> getPostByUserId(@PathVariable Long id, @RequestHeader ("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body(null);
+            throw  new HttpUnauthorizedException("No authorization header provided");
         }
         String token = authHeader.substring(7);
         User user = userService.getCurrentUserFromToken(token);
