@@ -12,6 +12,9 @@
         <div class="flex ml-7 w-full justify-between">
           <h3 class="text-lg text-primary font-semibold">Username</h3>
           <form class="flex items-center gap-5" action="">
+            <span class="text-red-500 text-sm mr-2" id="usernameError"></span>
+            <span class="text-green-500 text-sm mr-2" id="usernameSuccess"
+            ></span>
             <input
               name="displayName"
               type="text"
@@ -26,6 +29,8 @@
         <div class="flex gap-5 ml-7 w-full justify-between">
           <h3 class="text-lg text-primary font-semibold">Email</h3>
           <form class="flex items-center gap-5" action="">
+            <span class="text-red-500 text-sm mr-2" id="emailError"></span>
+            <span class="text-green-500 text-sm mr-2" id="emailSuccess"></span>
             <input
               name="email"
               type="text"
@@ -46,6 +51,9 @@
         <div class="flex gap-5 ml-7 w-full justify-between">
           <h1 class="text-primary font-semibold text-lg">Modify password</h1>
           <form class="flex items-center gap-x-5 justify-center">
+            <span class="text-red-500 text-sm mr-2" id="passwordError"></span>
+            <span class="text-green-500 text-sm mr-2" id="passwordSuccess"
+            ></span>
             <div class="flex border border-gray-300 rounded-md p-2 w-full">
               <div id="inputDiv">
                 <input
@@ -108,25 +116,28 @@
             Change your Profile picture
           </h3>
           <form class="flex items-center gap-5" action="">
+            <span class="text-red-500 text-sm mr-2" id="fileError"></span>
+            <span class="text-green-500 text-sm mr-2" id="fileSuccess"></span>
             <div>
               <label
-              for="file"
-              class="flex items-center p-2 rounded-xl border border-gray-300 border-dashed cursor-pointer"
+                for="file"
+                class="flex items-center p-2 rounded-xl border border-gray-300 border-dashed cursor-pointer"
               >
-              <div class="space-y-2">
-                <h4 class="text-base font-semibold text-primary">
-                Upload a file
-                </h4>
-                <span id="selectedFileName" class="text-sm text-gray-500"></span>
-              </div>
-              <input
-                type="file"
-                id="file"
-                name="file"
-                accept="image/png, image/jpeg"
-                hidden
-                onchange="document.getElementById('selectedFileName').textContent = this.files && this.files[0] ? this.files[0].name : ''"
-              />
+                <div class="space-y-2">
+                  <h4 class="text-base font-semibold text-primary">
+                    Upload a file
+                  </h4>
+                  <span id="selectedFileName" class="text-sm text-gray-500"
+                  ></span>
+                </div>
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  accept="image/png, image/jpeg"
+                  hidden
+                  onchange="document.getElementById('selectedFileName').textContent = this.files && this.files[0] ? this.files[0].name : ''"
+                />
               </label>
             </div>
             <input type="submit" class="btn-primary" />
@@ -184,15 +195,76 @@
           .find((row) => row.startsWith("token="))
           ?.split("=")[1];
         const data: { [key: string]: FormDataEntryValue } = {};
+
         formData.forEach((value, key) => {
           data[key] = value;
         });
-        
+
+        function showMessage(id: string, message: string, isSuccess = false) {
+          const elem = document.getElementById(id);
+          if (elem) {
+            elem.textContent = message;
+          }
+        }
         if (data["file"]) {
-          
-          await UserService.changeProfilePicture(data["file"] as File,  token!);
+          try {
+            await UserService.changeProfilePicture(data["file"] as File, token!);
+            // Show success message for file upload
+            showMessage("fileSuccess", "Profile picture updated successfully!", true);
+          } catch (error) {
+            const errorMsg = (error instanceof Error && error.message) ? error.message : "An error occurred";
+            showMessage("fileError", errorMsg);
+          }
         } else {
-          await UserService.updateUserProfile(data, token!);
+          // Password validation
+          if (data["password"]) {
+            if (data["password"] !== data["confirmNewPassword"]) {
+              showMessage("passwordError", "Passwords do not match!");
+              return;
+            } else if (data["password"] === "") {
+              showMessage("passwordError", "Password cannot be empty!");
+              return;
+            }
+            delete data["confirmNewPassword"];
+          }
+
+          // Email validation
+          if (data["email"]) {
+            if (data["email"] !== data["repeatEmail"]) {
+              showMessage("emailError", "Emails do not match!");
+              return;
+            } else if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data["email"])))) {
+              showMessage("emailError", "Invalid email format!");
+              return;
+            } else if (data["email"]=== "") {
+              showMessage("emailError", "Email cannot be empty!");
+              return;
+            }
+            delete data["repeatEmail"];
+          }
+
+          try {
+            await UserService.updateUserProfile(data, token!);
+
+            // Success messages
+            if (data["displayName"]) {
+              showMessage("usernameSuccess", "Username updated successfully!", true);
+              showMessage("usernameError", "");
+            }
+            if (data["email"]) {
+              showMessage("emailSuccess", "Email updated successfully!", true);
+              showMessage("emailError", "");
+            }
+            if (data["password"]) {
+              showMessage("passwordSuccess", "Password updated successfully!", true);
+              showMessage("passwordError", "");
+            }
+          } catch (error) {
+            const errorMsg = (error instanceof Error && error.message) ? error.message : "An error occurred";
+            if (data["displayName"]) showMessage("usernameError", errorMsg);
+            if (data["email"]) showMessage("emailError", errorMsg);
+            if (data["password"]) showMessage("passwordError", errorMsg);
+          }
         }
       });
     });

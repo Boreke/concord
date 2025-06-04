@@ -44,6 +44,7 @@ import LoginLayout from "../layouts/LoginLayout.astro";
           </svg>
         </span>
       </div>
+      <p id="serverError" class="text-red-600 text-sm text-center"></p>
       <button type="submit" class="btn-primary">Login</button>
       <a href="/signup" class="text-primary hover:underline text-sm">
         Don't have an account? Register here
@@ -98,6 +99,18 @@ import LoginLayout from "../layouts/LoginLayout.astro";
       userTag: userTag,
       password: password,
     };
-    await AuthService.login(formData);
+    try {
+      await AuthService.login(formData);
+    } catch (error) {
+      const serverError = document.getElementById("serverError");
+      if (serverError) {
+        serverError.textContent = error instanceof Error && error.message
+          ? `An error occurred: ${error.message}`
+          : "An error occurred while logging in. Please try again.";
+      }
+      console.error("Login error:", error);
+      return;
+      
+    }
   });
 </script>
