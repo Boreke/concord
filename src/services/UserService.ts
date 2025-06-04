@@ -61,8 +61,8 @@ export class UserService {
         }
     }
 
-    static async fetchRecommendedUsers(token: string) {
-        const response = await fetch(`${env.API_URL}/users/recommended`, {
+    static async fetchRecommendedUsers(id:Number,token: string) {
+        const response = await fetch(`${env.API_URL}/users/${id}/recommendations`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

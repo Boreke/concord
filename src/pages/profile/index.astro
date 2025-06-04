@@ -1,6 +1,7 @@
 ---
 import type { Post } from "../../class/Post";
 import PostComponent from "../../components/PostComponent.astro";
+import UserRecommendation from "../../components/UserRecommendation.astro";
 import Layout from "../../layouts/Layout.astro";
 import { AuthService } from "../../services/AuthService";
 import { PostService } from "../../services/PostService";
@@ -13,6 +14,7 @@ if (!token) {
 
 let currentUser = null;
 let posts;
+let recommendations;
 try {
   currentUser = await UserService.fetchCurrentUser(token!);
   
@@ -86,4 +88,5 @@ if (currentUser) {
       }
     </div>
   </section>
+  <UserRecommendation />
 </Layout>

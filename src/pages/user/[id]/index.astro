@@ -5,6 +5,7 @@ import PostComponent from "../../../components/PostComponent.astro";
 import { AuthService } from "../../../services/AuthService";
 import { PostService } from "../../../services/PostService";
 import type { Post } from "../../../class/Post";
+import UserRecommendation from "../../../components/UserRecommendation.astro";
 const { id } = Astro.params;
 const token = Astro.cookies.get("token")?.value;
 if (!token) {
@@ -95,6 +96,7 @@ console.log(posts);
       }
     </div>
   </section>
+  <UserRecommendation />
 </Layout>
 <script>
   import { UserService } from "../../../services/UserService";
