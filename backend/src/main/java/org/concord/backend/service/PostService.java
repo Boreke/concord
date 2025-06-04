@@ -99,9 +99,6 @@ public class PostService {
             }
         }
 
-        Map<Integer, Long> distribution = scoreMap.values().stream()
-                .collect(Collectors.groupingBy(i -> i, Collectors.counting()));
-
         if (scoreMap.isEmpty()) {
             List<Post> fallback = postRepository.findTop20ByOrderByCreatedAtDesc();
             return fallback.stream()
@@ -118,14 +115,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> getPostByUserId(Long id) {
+    public List<PostResponse> getPostByUserId(Long id, Long currentUserId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new HttpBadRequestException("User not found"));
 
         List<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
 
         return posts.stream()
-                .map(post -> PostMapper.toResponse(post, isPostLikedByCurrentUser(post, user.getId())))
+                .map(post -> PostMapper.toResponse(post, isPostLikedByCurrentUser(post, currentUserId)))
                 .collect(Collectors.toList());
     }
 }
