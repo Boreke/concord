@@ -1,9 +1,19 @@
 ---
 import '../styles/global.css';
 import SideNav from '../components/SideNav.astro';
+import { AuthService } from '../services/AuthService';
 
 var pageName= Astro.originPathname.split('/').pop();
  pageName = !pageName? 'home' : pageName;
+ const token = Astro.cookies.get('token')?.value;
+ const refreshToken = Astro.cookies.get('refreshToken')?.value;
+ if (!token) {
+	try {
+		await AuthService.refreshToken(refreshToken!);
+	} catch (error) {
+   		return Astro.redirect('/login');
+	}
+ }
 ---
 <!doctype html>
 <html lang="en">

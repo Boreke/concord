@@ -127,4 +127,21 @@ export class UserService {
         const data = await response.json();
         return data;
     }
+
+    static async updateUserProfile(data: { [key: string]: any }, token: string) {
+        const response = await fetch(`${env.API_URL}/users/me`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            throw new Error('Failed to update user profile');
+        }
+        const updatedUser = await response.json();
+        UserService.currentUser = User.fromAPI(updatedUser);
+        return User.fromAPI(updatedUser);
+    }
 }
