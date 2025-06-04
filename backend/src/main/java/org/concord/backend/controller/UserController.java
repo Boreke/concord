@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.concord.backend.dal.model.postgres.User;
 import org.concord.backend.dal.model.postgres.UserPP;
 import org.concord.backend.dal.postgres.repository.UserPPRepository;
-import org.concord.backend.dto.request.UserIdRequest;
 import org.concord.backend.dto.request.UserUpdateRequest;
 import org.concord.backend.dto.response.UserResponse;
 import org.concord.backend.dto.response.UserShortResponse;
@@ -34,7 +33,6 @@ public class UserController {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
         String token = authHeader.substring(7);
         User user = userService.getCurrentUserFromToken(token);
         String userPPUrl = userPPRepository.findByUser(user)
@@ -64,14 +62,24 @@ public class UserController {
     }
 
     @PostMapping("/{id}/follow")
-    public ResponseEntity<String> follow(@PathVariable Long id, @RequestBody UserIdRequest follower) {
-        userService.follow(follower.getCurrentUserId(), id);
+    public ResponseEntity<String> follow(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+        User follower = userService.getCurrentUserFromToken(token);
+        userService.follow(follower.getId(), id);
         return ResponseEntity.ok("Followed successfully");
     }
 
     @PostMapping("/{id}/unfollow")
-    public ResponseEntity<String> unfollow(@PathVariable Long id, @RequestBody UserIdRequest follower) {
-        userService.unfollow(follower.getCurrentUserId(), id);
+    public ResponseEntity<String> unfollow(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+        User follower = userService.getCurrentUserFromToken(token);
+        userService.unfollow(follower.getId(), id);
         return ResponseEntity.ok("Unfollowed successfully");
     }
 
@@ -81,15 +89,49 @@ public class UserController {
         return ResponseEntity.ok(followers);
     }
 
+    @GetMapping("/{id}/foolowers/number")
+    public ResponseEntity<Integer> getFollowersCount(@PathVariable Long id) {
+        int count = userService.getFollowersCount(id);
+        return ResponseEntity.ok(count);
+    }
+
     @GetMapping("/{id}/following")
     public ResponseEntity<List<UserShortResponse>> getFollowing(@PathVariable Long id) {
         List<UserShortResponse> following = userService.getFollowingByUserId(id);
         return ResponseEntity.ok(following);
     }
 
+    @GetMapping("/{id}/following/number")
+    public ResponseEntity<Integer> getFollowingCount(@PathVariable Long id) {
+        int count = userService.getFollowingCount(id);
+        return ResponseEntity.ok(count);
+    }
+
     @GetMapping("/{id}/recommendations")
     public ResponseEntity<List<UserShortResponse>> getRecommendations(@PathVariable Long id) {
         List<UserShortResponse> recommendations = userService.getRecommendations(id);
         return ResponseEntity.ok(recommendations);
+    }
+
+    @GetMapping("/{id}/is-followed")
+    public ResponseEntity<Boolean> isFollowed(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+        User user = userService.getCurrentUserFromToken(token);
+        boolean followed = userService.isFollowed(id, user.getId());
+        return ResponseEntity.ok(followed);
+    }
+
+    @GetMapping("/{id}/is-following")
+    public ResponseEntity<Boolean> isFollowing(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+        User user = userService.getCurrentUserFromToken(token);
+        boolean following = userService.isFollowing(id, user.getId());
+        return ResponseEntity.ok(following);
     }
 } 

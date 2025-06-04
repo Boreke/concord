@@ -5,7 +5,7 @@ import org.concord.backend.dto.response.PostResponse;
 import org.hibernate.Hibernate;
 
 public class PostMapper {
-    public static PostResponse toResponse(Post post) {
+    public static PostResponse toResponse(Post post, boolean likedByCurrentUser) {
         PostResponse postResponse = new PostResponse();
         postResponse.setId(post.getId());
         postResponse.setTitle(post.getTitle());
@@ -18,6 +18,7 @@ public class PostMapper {
             postResponse.setLikeCount(0);
         }
         postResponse.setCreatedAt(post.getCreatedAt());
+        postResponse.setLikedByCurrentUser(likedByCurrentUser);
         return postResponse;
     }
 }

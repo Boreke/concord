@@ -12,6 +12,7 @@ import org.concord.backend.dal.postgres.repository.UserRepository;
 import org.concord.backend.dto.request.UserUpdateRequest;
 import org.concord.backend.dto.response.UserResponse;
 import org.concord.backend.dto.response.UserShortResponse;
+import org.concord.backend.exceptions.http.HttpBadRequestException;
 import org.concord.backend.mapper.UserMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -63,9 +64,9 @@ public class UserService {
 
     public void follow(Long followerId, Long followeeId) {
         User follower = userRepository.findById(followerId)
-                .orElseThrow(() -> new RuntimeException("Follower not found"));
+                .orElseThrow(() -> new HttpBadRequestException("Follower not found"));
         User followee = userRepository.findById(followeeId)
-                .orElseThrow(() -> new RuntimeException("Followee not found"));
+                .orElseThrow(() -> new HttpBadRequestException("Followee not found"));
 
         FollowId id = new FollowId(followerId, followeeId);
         Follow follow = new Follow(id, follower, followee);
@@ -182,5 +183,33 @@ public class UserService {
         user.setPrivate(userUpdateRequest.getIsPrivate());
 
         return userRepository.save(user);
+    }
+
+    public int getFollowersCount(Long id) {
+        return followRepository.countByFolloweeId(id);
+    }
+
+    public int getFollowingCount(Long id) {
+        return followRepository.countByFollowerId(id);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isFollowed(Long id, Long currentUserId) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
+
+        return followRepository.existsByFollowerAndFollowee(currentUser, user);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isFollowing(Long id, Long currentUserId) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
+
+        return followRepository.existsByFollowerAndFollowee(user, currentUser);
     }
 }
