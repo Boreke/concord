@@ -28,6 +28,9 @@ const isLoggedIn  = AuthService.checkAuthServer(Astro.cookies.get("token")?.valu
                         </svg>
                         <a href="/profile" class="btn-primary-inverse"> Profile</a>
                     </li>
+                    <li>
+                        <a href="/logout" class="btn-primary-inverse"> Log-Out</a>
+                    </li>
                 ) : (
                     <li class="flex flex-col justify-center">
                         <a href="/login" class="btn-primary-inverse"> Log-In</a>

@@ -1,19 +1,37 @@
 ---
-import PostComponent from "../components/PostComponent.astro";
-import { postTemplate } from "../constants/postTemplate";
-import Layout from "../layouts/Layout.astro";
-import { PostService } from "../services/PostService";
-import { UserService } from "../services/UserService";
+import type { Post } from "../../class/Post";
+import PostComponent from "../../components/PostComponent.astro";
+import Layout from "../../layouts/Layout.astro";
+import { AuthService } from "../../services/AuthService";
+import { PostService } from "../../services/PostService";
+import { UserService } from "../../services/UserService";
 
 const token = Astro.cookies.get("token")?.value;
 if (!token) {
   Astro.redirect("/login");
 }
 
-const currentUser = await UserService.fetchCurrentUser(token!);
+let currentUser = null;
 let posts;
+try {
+  currentUser = await UserService.fetchCurrentUser(token!);
+  
+} catch (error) {
+  console.error("Error fetching current user:", error);
+  try {
+    await AuthService.refreshToken(token!);
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return Astro.redirect("/login");
+  }
+}
 if (currentUser) {
-  console.log("Current User:", currentUser);
+  try {
+    posts = await PostService.fetchPostsByUserId(currentUser!.id, token!);
+  } catch (error) {
+    console.error("Error fetching posts", error);
+    return Astro.redirect("/");
+  }
 }
 ---
 
@@ -46,18 +64,25 @@ if (currentUser) {
           <p class="text-lg text-primary">{currentUser?.userTag}</p>
         </div>
         <div>
-          <a href="/followers" class="text-primary hover:underline">Followers</a>
+          <a href="/profile/followers" class="text-primary hover:underline"
+            >Followers</a
+          >
           <span class="mx-2 text-primary font-semibold">|</span>
-          <a href="/following" class="text-primary hover:underline">Following</a>
+          <a href="/profile/following" class="text-primary hover:underline"
+            >Following</a
+          >
         </div>
       </div>
     </div>
     <div
       class={`border-t border-primary w-full h-full mt-4 ${!posts || posts.length === 0 ? " text-8xl flex items-center justify-center text-primary" : ""}`}
     >
-      {posts && posts.length > 0
-      ? posts.map((post) => <PostComponent post={post} />)
-      : <p>Start posting today!</p>
+      {
+        posts && posts.length > 0 ? (
+          posts.map((post: Post) => <PostComponent post={post} />)
+        ) : (
+          <p>Start posting today!</p>
+        )
       }
     </div>
   </section>

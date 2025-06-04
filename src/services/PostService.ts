@@ -95,7 +95,6 @@ export class PostService {
                 'Authorization': `Bearer ${token}`
             }
         });
-        console.log(response);
         
         if (!response.ok) {
             console.log(`Failed to fetch posts by user ID ${userId}: ${response.statusText}`);

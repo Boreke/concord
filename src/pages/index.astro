@@ -12,7 +12,18 @@ var pageName = Astro.originPathname.split("/").pop();
 pageName = !pageName ? "home" : pageName;
 const pageTitle = pageName.charAt(0).toUpperCase() + pageName.slice(1);
 const token = Astro.cookies.get("token")?.value;
-const currentUser = await UserService.fetchCurrentUser(token!);
+let currentUser = null;
+try {
+  currentUser = await UserService.fetchCurrentUser(token!);
+} catch (error) {
+  console.error("Error fetching current user:", error);
+  try {
+    await AuthService.refreshToken(token!);
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return Astro.redirect("/login");
+  }
+}
 const posts: Post[] = AuthService.checkAuthServer(token)
   ? await PostService.fetchRecommendedPosts(currentUser?.id, token!)
   : await PostService.fetchPosts(token!);
@@ -31,7 +42,7 @@ const posts: Post[] = AuthService.checkAuthServer(token)
       posts && posts.length > 0 ? (
         posts.map((post) => <PostComponent post={post} />)
       ) : (
-        <EmptyPost />
+        <p class="text-primary w-full h-full text-center">No posts available</p>
       )
     }
   </main>

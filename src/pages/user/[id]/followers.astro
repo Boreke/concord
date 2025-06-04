@@ -1,0 +1,66 @@
+---
+import type { User } from "../../../class/User";
+import Layout from "../../../layouts/Layout.astro";
+import { AuthService } from "../../../services/AuthService";
+import { UserService } from "../../../services/UserService";
+
+const token = Astro.cookies.get("token")?.value;
+const refreshToken = Astro.cookies.get("refreshToken")?.value;
+const userId = Astro.params.id;
+if (!token) {
+  try {
+    await AuthService.refreshToken(refreshToken!);
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    Astro.redirect("/login");
+  }
+}
+const user = await UserService.fetchUserById(Number(userId), token!);
+const currentUser = await UserService.fetchCurrentUser(token!);
+const followers = await UserService.fetchFollowers(user.id, token!);
+---
+
+<Layout>
+  <main class="h-screen w-full flex flex-col border-x border-primary">
+    <section class="flex flex-col gap-4 py-4">
+      <div class="flex flex-col">
+        <h1 class="text-2xl text-primary font-bold pl-4 py-2">Followers</h1>
+      </div>
+
+      <div class="flex flex-col gap-4 ml-4 overflow-auto">
+        {
+          followers.length > 0 ? (
+            followers.map((user: User) => (
+              <div class="flex items-center gap-4 w-full px-4 justify-between">
+                <div class="flex items-center gap-2">
+                  <img
+                    src="/default-profile.png"
+                    alt="user picture"
+                    class="h-10 w-10 rounded-full"
+                  />
+                  <a
+                    href={
+                      user.id === currentUser.id
+                        ? `/profile`
+                        : `/user/${user.id}`
+                    }
+                    class="flex flex-col"
+                  >
+                    <h2 class="text-xl text-primary font-bold">
+                      {user.displayName}
+                    </h2>
+                    <p class="text-lg text-primary">@{user.userTag}</p>
+                  </a>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p class="text-lg text-primary">
+              No one is following @{user.userTag} yet.
+            </p>
+          )
+        }
+      </div>
+    </section>
+  </main>
+</Layout>

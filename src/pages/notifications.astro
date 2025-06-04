@@ -14,7 +14,7 @@ const posts = await (async () => {
     const following = await UserService.fetchFollowing(user.id, token!);
     const postsArrays = await Promise.all(
       following.map(async (followedUser: User) => {
-        return await PostService.fetchUserPosts(followedUser.id, token!);
+        return await PostService.fetchPostsByUserId(followedUser.id, token!);
       })
     );
     return postsArrays.flat();
