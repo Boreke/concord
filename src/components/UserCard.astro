@@ -1,5 +1,6 @@
 ---
-const { user, currentUser } = Astro.props;
+const { user, currentUserId } = Astro.props;
+
 ---
 
 <div class="flex items-center gap-4 w-full px-4 justify-between">
@@ -10,7 +11,7 @@ const { user, currentUser } = Astro.props;
       class="h-10 w-10 rounded-full"
     />
     <a
-      href={user.id === currentUser.id ? `/profile` : `/user/${user.id}`}
+      href={user.id === currentUserId ? `/profile` : `/user/${user.id}`}
       class="flex flex-col"
     >
       <h2 class="text-xl text-primary font-bold">
