@@ -150,7 +150,7 @@ public class UserService {
                     .entrySet().stream()
                     .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
                     .map(Map.Entry::getKey)
-                    .filter(id -> !id.equals(userId))
+                    .filter(id -> !id.equals(userId) || !followingIds.contains(id))
                     .limit(20)
                     .toList();
 
