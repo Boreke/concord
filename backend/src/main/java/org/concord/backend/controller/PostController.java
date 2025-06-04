@@ -59,8 +59,13 @@ public class PostController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<PostResponse>> getPostByUserId(@PathVariable Long id) {
-        List<PostResponse> post = postService.getPostByUserId(id);
+    public ResponseEntity<List<PostResponse>> getPostByUserId(@PathVariable Long id, @RequestHeader ("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(null);
+        }
+        String token = authHeader.substring(7);
+        User user = userService.getCurrentUserFromToken(token);
+        List<PostResponse> post = postService.getPostByUserId(id, user.getId());
         return ResponseEntity.ok(post);
     }
 }
