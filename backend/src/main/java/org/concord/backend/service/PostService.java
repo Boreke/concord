@@ -102,9 +102,6 @@ public class PostService {
         Map<Integer, Long> distribution = scoreMap.values().stream()
                 .collect(Collectors.groupingBy(i -> i, Collectors.counting()));
 
-        distribution.forEach((score, count) ->
-                System.out.println("Posts with score " + score + ":" + count));
-
         if (scoreMap.isEmpty()) {
             List<Post> fallback = postRepository.findTop20ByOrderByCreatedAtDesc();
             return fallback.stream()
@@ -126,9 +123,6 @@ public class PostService {
                 .orElseThrow(() -> new HttpBadRequestException("User not found"));
 
         List<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
-        if (posts.isEmpty()) {
-            throw new HttpBadRequestException("No posts found for user");
-        }
 
         return posts.stream()
                 .map(post -> PostMapper.toResponse(post, isPostLikedByCurrentUser(post, user.getId())))
