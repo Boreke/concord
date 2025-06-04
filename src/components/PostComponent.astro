@@ -12,12 +12,12 @@ const user = await UserService.fetchUserById(post.userId, token!);
     <img src="/logo.svg" alt="user picture" class="h-10 w-10 rounded-full" />
     <div class="flex flex-col justify-center">
       <h1 class="text-primary font-semibold text-lg">{user?.displayName}</h1>
-      <p class="text-sm text-gray-500 -mt-1.5">@{user?.id}</p>
+      <p class="text-sm text-gray-500 -mt-1.5">@{user?.userTag}</p>
     </div>
   </a>
   <div class="ml-8 px-4 -mt-2">
     <h1 class="text-primary text-lg mt-4">{post.title}</h1>
-    <p class="text-sm text-gray-500">{post.description}</p>
+    <p class="text-sm text-gray-500">{post.content}</p>
   </div>
 
   {
@@ -94,10 +94,13 @@ const user = await UserService.fetchUserById(post.userId, token!);
   import { PostService } from "../services/PostService";
 
   document.addEventListener("DOMContentLoaded", () => {
-    const likeButton = document.getElementById("like-button");
-    const likeCount = document.getElementById("like-count");
-    if (likeButton) {
-      likeButton.addEventListener("click", async () => {
+    const likeButtons = document.querySelectorAll("[id^='like-button']");
+    const likeCounts = document.querySelectorAll("[id^='like-count']");
+    console.log("Like buttons:", likeButtons);
+
+    likeButtons.forEach((likeButton, index) => {
+      likeButton.addEventListener("click", async (e) => {
+        e.preventDefault();
         const postIdStr = likeButton.getAttribute("aria-post-id");
         const postId = postIdStr ? Number(postIdStr) : null;
         const isLiked = likeButton.getAttribute("aria-isLiked") === "true";
@@ -111,8 +114,8 @@ const user = await UserService.fetchUserById(post.userId, token!);
           }
           if (isLiked) {
             await PostService.unlikePost(postId, token!);
-            if (likeCount && likeCount.textContent) {
-              likeCount.textContent = (parseInt(likeCount.textContent) - 1).toString();
+            if (likeCounts[index] && likeCounts[index].textContent) {
+              likeCounts[index].textContent = (parseInt(likeCounts[index].textContent) - 1).toString();
             }
             likeButton.innerHTML = `<svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -130,9 +133,9 @@ const user = await UserService.fetchUserById(post.userId, token!);
                 </svg>`;
           } else {
             await PostService.likePost(postId, token!);
-            if (likeCount && likeCount.textContent) {
-              likeCount.textContent = (
-                parseInt(likeCount.textContent) + 1
+            if (likeCounts[index] && likeCounts[index].textContent) {
+              likeCounts[index].textContent = (
+                parseInt(likeCounts[index].textContent) + 1
               ).toString();
             }
             likeButton.innerHTML = `<svg
@@ -150,6 +153,6 @@ const user = await UserService.fetchUserById(post.userId, token!);
           console.error("Error liking/unliking post:", error);
         }
       });
-    }
+    });
   });
 </script>

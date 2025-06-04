@@ -39,10 +39,6 @@ import { PostService } from "../services/PostService";
                 const title = titleInput ? titleInput.value : "";
                 const content = (document.getElementById("post-content") as HTMLTextAreaElement | null)?.value;
                 const userId = form.getAttribute("aria-user-id");
-                console.log("userId", userId);
-                console.log("title", title);
-                console.log("content", content);
-                console.log("token", token);
                 if (!title || !content) {
                     alert("Please fill in all fields.");
                     return;
@@ -62,6 +58,7 @@ import { PostService } from "../services/PostService";
                     true
                 );
                 await PostService.createPost(post, token);
+                window.location.reload();
             });
         }
     });
