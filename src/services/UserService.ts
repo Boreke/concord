@@ -146,15 +146,14 @@ export class UserService {
     }
 
     static async changeProfilePicture(file: File, token: string) {
-
+        const formData = new FormData();
+        formData.append('file', file);
         const response = await fetch(`${env.API_URL}/users/profile-picture`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                "file": file
-            })
+            body: formData
         });
         if (!response.ok) {
             throw new Error('Failed to change profile picture');

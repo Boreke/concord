@@ -110,21 +110,23 @@
           <form class="flex items-center gap-5" action="">
             <div>
               <label
-                for="file"
-                class="flex items-center p-2 rounded-xl border border-gray-300 border-dashed cursor-pointer"
+              for="file"
+              class="flex items-center p-2 rounded-xl border border-gray-300 border-dashed cursor-pointer"
               >
-                <div class="space-y-2">
-                  <h4 class="text-base font-semibold text-primary">
-                    Upload a file
-                  </h4>
-                </div>
-                <input
-                  type="file"
-                  id="file"
-                  name="file"
-                  accept="png, jpg"
-                  hidden
-                />
+              <div class="space-y-2">
+                <h4 class="text-base font-semibold text-primary">
+                Upload a file
+                </h4>
+                <span id="selectedFileName" class="text-sm text-gray-500"></span>
+              </div>
+              <input
+                type="file"
+                id="file"
+                name="file"
+                accept="image/png, image/jpeg"
+                hidden
+                onchange="document.getElementById('selectedFileName').textContent = this.files && this.files[0] ? this.files[0].name : ''"
+              />
               </label>
             </div>
             <input type="submit" class="btn-primary" />
@@ -185,7 +187,11 @@
         formData.forEach((value, key) => {
           data[key] = value;
         });
+        console.log("Form data:", data);
+        
         if (data["file"]) {
+          console.log("Changing profile picture with file:", data["file"]);
+          
           await UserService.changeProfilePicture(data["file"] as File,  token!);
         } else {
           await UserService.updateUserProfile(data, token!);
