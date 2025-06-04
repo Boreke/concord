@@ -7,26 +7,25 @@ import { PostService } from "../services/PostService";
 import { UserService } from "../services/UserService";
 import { Post } from "../class/Post.ts";
 import UserRecommendation from "../components/UserRecommendation.astro";
-
+import { ensureValidToken } from "../utils/auth";
 
 var pageName = Astro.originPathname.split("/").pop();
 pageName = !pageName ? "home" : pageName;
 const pageTitle = pageName.charAt(0).toUpperCase() + pageName.slice(1);
+
+await ensureValidToken(Astro);
 const token = Astro.cookies.get("token")?.value;
+
 let currentUser;
 try {
   currentUser = await UserService.fetchCurrentUser(token!);
 } catch (error) {
   console.error("Error fetching current user:", error);
-  try {
-    await AuthService.refreshToken(token!);
-  } catch (error) {
-    console.error("Error refreshing token:", error);
-    return Astro.redirect("/login");
-  }
 }
-const posts: Post[] = await PostService.fetchRecommendedPosts(currentUser?.id, token!)
-
+const posts: Post[] = await PostService.fetchRecommendedPosts(
+  currentUser?.id,
+  token!
+);
 ---
 
 <Layout>

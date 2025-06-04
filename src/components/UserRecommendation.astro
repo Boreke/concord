@@ -1,20 +1,13 @@
 ---
 import type { User } from "../class/User";
-import { AuthService } from "../services/AuthService";
 import { UserService } from "../services/UserService";
+import { ensureValidToken } from "../utils/auth";
 
 let currentUser;
 let recommendedUsers;
+await ensureValidToken(Astro);
 const token = Astro.cookies.get("token")?.value;
-if (!token) {
-    try
-    {
-        await AuthService.refreshToken(Astro.cookies.get("refreshToken")?.value!);
-    } catch (error) {
-        console.error("Error refreshing token:", error);
-        return Astro.redirect("/login");
-    }
-}
+
 try {
     currentUser = await UserService.fetchCurrentUser(token!);
     recommendedUsers = await UserService.fetchRecommendedUsers(currentUser!.id, token!);

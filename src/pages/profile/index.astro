@@ -3,14 +3,12 @@ import type { Post } from "../../class/Post";
 import PostComponent from "../../components/PostComponent.astro";
 import UserRecommendation from "../../components/UserRecommendation.astro";
 import Layout from "../../layouts/Layout.astro";
-import { AuthService } from "../../services/AuthService";
 import { PostService } from "../../services/PostService";
 import { UserService } from "../../services/UserService";
+import { ensureValidToken } from "../../utils/auth";
 
+await ensureValidToken(Astro);
 const token = Astro.cookies.get("token")?.value;
-if (!token) {
-  Astro.redirect("/login");
-}
 
 let currentUser = null;
 let posts;
@@ -18,12 +16,7 @@ try {
   currentUser = await UserService.fetchCurrentUser(token!);
 } catch (error) {
   console.error("Error fetching current user:", error);
-  try {
-    await AuthService.refreshToken(token!);
-  } catch (error) {
-    console.error("Error refreshing token:", error);
-    return Astro.redirect("/login");
-  }
+  
 }
 if (currentUser) {
   try {

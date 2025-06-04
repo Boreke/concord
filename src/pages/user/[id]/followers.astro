@@ -2,20 +2,13 @@
 import type { User } from "../../../class/User";
 import UserCard from "../../../components/UserCard.astro";
 import Layout from "../../../layouts/Layout.astro";
-import { AuthService } from "../../../services/AuthService";
 import { UserService } from "../../../services/UserService";
+import { ensureValidToken } from "../../../utils/auth";
 
+await ensureValidToken(Astro);
 const token = Astro.cookies.get("token")?.value;
-const refreshToken = Astro.cookies.get("refreshToken")?.value;
 const userId = Astro.params.id;
-if (!token) {
-  try {
-    await AuthService.refreshToken(refreshToken!);
-  } catch (error) {
-    console.error("Error refreshing token:", error);
-    Astro.redirect("/login");
-  }
-}
+
 const user = await UserService.fetchUserById(Number(userId), token!);
 const currentUser = await UserService.fetchCurrentUser(token!);
 const followers = await UserService.fetchFollowers(user.id, token!);
