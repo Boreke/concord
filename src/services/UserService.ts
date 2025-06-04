@@ -26,7 +26,7 @@ export class UserService {
             }
         });
         if (!response.ok) {
-            window.location.href = '/login';
+            throw new Error('Failed to fetch current user');
         }
         let currentUser = await response.json();
         
@@ -35,21 +35,12 @@ export class UserService {
     }
 
     static async followUser(userToFollowId: number, token: string) {
-        const currentUser = UserService.currentUser ? UserService.currentUser : null;
-        if (!currentUser) {
-            throw new Error('Current user is not authenticated');
-        } else if (currentUser.id === userToFollowId) {
-            throw new Error('You cannot follow yourself');
-        }
         const response = await fetch(`${env.API_URL}/users/${userToFollowId}/follow`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                currentUserId: currentUser?.id
-            })
+            }
         });
         if (!response.ok) {
             throw new Error('Failed to follow user');
@@ -57,21 +48,13 @@ export class UserService {
     }
 
     static async unfollowUser(userToUnfollowId: number, token: string) {
-        const currentUser = UserService.currentUser;
-        if (!currentUser) {
-            throw new Error('Current user is not authenticated');
-        } else if (currentUser.id === userToUnfollowId) {
-            throw new Error('You cannot unfollow yourself');
-        }
+
         const response = await fetch(`${env.API_URL}/users/${userToUnfollowId}/unfollow`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                currentUserId: currentUser?.id
-            })
+            }
         });
         if (!response.ok) {
             throw new Error('Failed to unfollow user');
@@ -81,7 +64,7 @@ export class UserService {
     static async fetchRecommendedUsers(token: string) {
         const response = await fetch(`${env.API_URL}/users/recommended`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         if (!response.ok) {
@@ -130,5 +113,18 @@ export class UserService {
         }
         const data = await response.json();
         return data.map((user: any) => User.fromAPI(user));
+    }
+
+    static async isUserFollowedByCurrentUser(userId: number, token: string) {
+        const response = await fetch(`${env.API_URL}/users/${userId}/is-followed`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to check if user is followed');
+        }
+        const data = await response.json();
+        return data;
     }
 }
