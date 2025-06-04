@@ -1,6 +1,9 @@
 ---
 import { navMenus } from "../constants/menus";
 import { AuthService } from "../services/AuthService";
+import { ensureValidToken } from "../utils/auth";
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const isLoggedIn  = AuthService.checkAuthServer(Astro.cookies.get("token")?.value);
 ---
 

@@ -54,8 +54,11 @@ export  class AuthService {
     });
     const data = await response.json();
     if (data.success) {
-      document.cookie = `token=${data.token}; path=/; max-age=3600; samesite=strict`;
-      document.cookie = `refreshToken=${data.refreshToken}; path=/; max-age=604800; samesite=strict`;
+      if(document){
+        document.cookie = `token=${data.token}; path=/; max-age=3600; samesite=strict`;
+        document.cookie = `refreshToken=${data.refreshToken}; path=/; max-age=604800; samesite=strict`;
+      }
+      return data;
     } else {
       throw new Error(data.message);
     }

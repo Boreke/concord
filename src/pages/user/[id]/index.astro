@@ -6,16 +6,12 @@ import { AuthService } from "../../../services/AuthService";
 import { PostService } from "../../../services/PostService";
 import type { Post } from "../../../class/Post";
 import UserRecommendation from "../../../components/UserRecommendation.astro";
+import { ensureValidToken } from "../../../utils/auth";
+
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const { id } = Astro.params;
 const token = Astro.cookies.get("token")?.value;
-if (!token) {
-  try {
-    await AuthService.refreshToken(Astro.cookies.get("refreshToken")?.value!);
-  } catch (error) {
-    console.error("Error refreshing token:", error);
-    return Astro.redirect("/login");
-  }
-}
 let posts;
 let user;
 let isFollowed;

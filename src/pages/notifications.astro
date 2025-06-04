@@ -5,7 +5,10 @@ import { UserService } from "../services/UserService";
 import { PostService } from "../services/PostService";
 import type { User } from "../class/User";
 import UserRecommendation from "../components/UserRecommendation.astro";
+import { ensureValidToken } from "../utils/auth";
 
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const token = Astro.cookies.get("token")?.value;
 const posts = await (async () => {
   const user = await UserService.fetchCurrentUser(token!);
@@ -24,9 +27,15 @@ const posts = await (async () => {
 ---
 
 <Layout>
-  <main class="flex flex-1 flex-col items-center border-x border-primary gap-4 h-screen">
+  <main
+    class="flex flex-1 flex-col items-center border-x border-primary gap-4 h-screen"
+  >
     {
-      posts ? posts.map((post) => <Notification post={post} />) : <p class="text-primary text-xl">No notifications</p>
+      posts ? (
+        posts.map((post) => <Notification post={post} />)
+      ) : (
+        <p class="text-primary text-xl">No notifications</p>
+      )
     }
   </main>
   <UserRecommendation />

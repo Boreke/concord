@@ -1,28 +1,36 @@
 ---
 import { UserService } from "../services/UserService";
-
+import { ensureValidToken } from "../utils/auth";
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
 const user = await UserService.fetchCurrentUser(
   Astro.cookies.get("token")?.value!
 );
 ---
 
-<div class="w-full border-primary p-2 h-fit">
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <img
-        src={user?.profileImageUrl || "/logo.svg"}
-        alt={`${user?.displayName || "Default User"}'s avatar`}
-        class="h-10 w-10 rounded-full"
-      />
-      <div class="flex flex-col justify-center">
-        <h1 class="text-primary font-semibold text-lg">{user?.displayName}</h1>
-        <p class="text-sm text-gray-500 -mt-1.5">@{user?.userTag}</p>
+<form
+  id="new-post-form"
+  aria-user-id={user?.id}
+  class="w-full contents border-primary p-2 h-fit"
+>
+  <div class="flex flex-col items-center w-full justify-between">
+    <div class="flex w-full items-center justify-between">
+      <div class="flex w-full items-center gap-2">
+        <img
+          src={user?.profileImageUrl || "/logo.svg"}
+          alt={`${user?.displayName || "Default User"}'s avatar`}
+          class="h-10 w-10 rounded-full"
+        />
+        <div class="flex flex-col justify-center">
+          <h1 class="text-primary font-semibold text-lg">
+            {user?.displayName}
+          </h1>
+          <p class="text-sm text-gray-500 -mt-1.5">@{user?.userTag}</p>
+        </div>
       </div>
+      <button type="submit" class="btn-primary mt-4 mr-4">Post</button>
     </div>
-    <form id="new-post-form" class="contents" aria-user-id={user?.id}>
-      <button type="submit" class="btn-primary">Post</button>
-    </form>
-    <div class="ml-8 px-4 -mt-2 flex flex-col">
+    <div class="ml-8 px-4 -mt-2 mb-4 mx-4 flex flex-col w-full">
       <input
         id="post-title"
         type="text"
@@ -35,52 +43,71 @@ const user = await UserService.fetchCurrentUser(
         class="text-sm text-gray-500 outline-none"
         placeholder="Start writing..."
         name="content"></textarea>
+      <div id="post-error" class="text-red-500 text-sm mt-1 hidden"></div>
     </div>
   </div>
-</div>
-<script>
-  import { Post } from "../class/Post";
-  import { PostService } from "../services/PostService";
+  <script>
+    import { Post } from "../class/Post";
+    import { PostService } from "../services/PostService";
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById(
-      "new-post-form"
-    ) as HTMLFormElement | null;
-    if (form) {
-      form.addEventListener("submit", async (e) => {
-        const token = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("token="))
-          ?.split("=")[1];
-        const titleInput = document.getElementById(
-          "post-title"
-        ) as HTMLInputElement | null;
-        const title = titleInput ? titleInput.value : "";
-        const content = (
-          document.getElementById("post-content") as HTMLTextAreaElement | null
-        )?.value;
-        const userId = form.getAttribute("aria-user-id");
-        if (!title || !content) {
-          alert("Please fill in all fields.");
-          return;
-        }
-        if (!token) {
-          window.location.href = "/login";
-          return;
-        }
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById(
+        "new-post-form"
+      ) as HTMLFormElement | null;
+      if (form) {
+        form.addEventListener("submit", async (e) => {
+          const token = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("token="))
+            ?.split("=")[1];
+          const titleInput = document.getElementById(
+            "post-title"
+          ) as HTMLInputElement | null;
+          const title = titleInput ? titleInput.value : "";
+          const content = (
+            document.getElementById(
+              "post-content"
+            ) as HTMLTextAreaElement | null
+          )?.value;
+          const userId = form.getAttribute("aria-user-id");
+          if (!title || !content) {
+            const errorElement = document.getElementById("post-error");
+            if (errorElement) {
+              errorElement.textContent = "Title and content cannot be empty.";
+              errorElement.classList.remove("hidden");
+            }
+            return;
+          }
+          if (!token) {
+            window.location.href = "/login";
+            return;
+          }
 
-        const post = new Post(
-          0,
-          Number(userId),
-          title,
-          content,
-          new Date().toISOString(),
-          1,
-          true
-        );
-        await PostService.createPost(post, token);
-        window.location.reload();
-      });
-    }
-  });
-</script>
+          const post = new Post(
+            0,
+            Number(userId),
+            title,
+            content,
+            new Date().toISOString(),
+            1,
+            true
+          );
+          try {
+            await PostService.createPost(post, token).then(
+              () => (window.location.href = "/")
+            );
+          } catch (error) {
+            console.error("Error creating post:", error);
+            const errorElement = document.getElementById("post-error");
+            if (errorElement) {
+              errorElement.textContent =
+                "Failed to create post. Please try again.";
+              errorElement.classList.remove("hidden");
+            }
+            return;
+          }
+        });
+      }
+    });
+  </script>
+</form>
