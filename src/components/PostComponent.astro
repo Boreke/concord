@@ -4,11 +4,14 @@ import { UserService } from "../services/UserService";
 const { post } = Astro.props;
 const token = Astro.cookies.get("token")?.value;
 const user = await UserService.fetchUserById(post.userId, token!);
-
+const currentUser = await UserService.fetchCurrentUser(token!);
 ---
 
 <div class="w-full border-b-[1px] border-primary p-2 h-fit">
-  <a href={`/user/${user?.id}`} class="flex items-center gap-2">
+  <a
+    href={user.id === currentUser.id ? `/profile` : `/user/${user.id}`}
+    class="flex items-center gap-2"
+  >
     <img src="/logo.svg" alt="user picture" class="h-10 w-10 rounded-full" />
     <div class="flex flex-col justify-center">
       <h1 class="text-primary font-semibold text-lg">{user?.displayName}</h1>
@@ -115,7 +118,9 @@ const user = await UserService.fetchUserById(post.userId, token!);
           if (isLiked) {
             await PostService.unlikePost(postId, token!);
             if (likeCounts[index] && likeCounts[index].textContent) {
-              likeCounts[index].textContent = (parseInt(likeCounts[index].textContent) - 1).toString();
+              likeCounts[index].textContent = (
+                parseInt(likeCounts[index].textContent) - 1
+              ).toString();
             }
             likeButton.innerHTML = `<svg
                 xmlns="http://www.w3.org/2000/svg"
