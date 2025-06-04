@@ -13,4 +13,5 @@ public class PostResponse {
     private String userTag;
     private long likeCount;
     private LocalDateTime createdAt;
+    private boolean likedByCurrentUser;
 }

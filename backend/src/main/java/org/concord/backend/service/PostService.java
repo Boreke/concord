@@ -8,13 +8,11 @@ import org.concord.backend.dal.postgres.repository.UserRepository;
 import org.concord.backend.dal.postgres.repository.FollowRepository;
 import org.concord.backend.dto.request.PostRequest;
 import org.concord.backend.dto.response.PostResponse;
+import org.concord.backend.exceptions.http.HttpBadRequestException;
 import org.concord.backend.mapper.PostMapper;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +24,11 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final UserService userService;
 
+    private Boolean isPostLikedByCurrentUser(Post post, Long userId) {
+        return likeRepository.existsByUserIdAndPostId(userId, post.getId());
+    }
 
     public PostResponse createPost(PostRequest request) {
         User user = userRepository.findById(request.getUserId())
@@ -38,15 +40,21 @@ public class PostService {
         post.setContent(request.getContent());
         post = postRepository.save(post);
 
-        return PostMapper.toResponse(post);
+        return PostMapper.toResponse(post, false);
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> getAllPosts() {
-        return postRepository.findAllWithLikes()
-                .stream()
-                .map(PostMapper::toResponse)
-                .collect(Collectors.toList());
+    public List<PostResponse> getAllPosts(String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            User currentUser = userService.getCurrentUserFromToken(token);
+            return postRepository.findAllWithLikes()
+                    .stream()
+                    .map(post -> PostMapper.toResponse(post, isPostLikedByCurrentUser(post, currentUser.getId())))
+                    .collect(Collectors.toList());
+        } else {
+            throw new HttpBadRequestException("Unauthorized");
+        }
     }
 
     public void likePost(Long postId, Long userId) {
@@ -100,7 +108,7 @@ public class PostService {
         if (scoreMap.isEmpty()) {
             List<Post> fallback = postRepository.findTop20ByOrderByCreatedAtDesc();
             return fallback.stream()
-                    .map(PostMapper::toResponse)
+                    .map(post -> PostMapper.toResponse(post, isPostLikedByCurrentUser(post, userId)))
                     .toList();
         }
 
@@ -108,7 +116,22 @@ public class PostService {
                 .sorted(Comparator.<Map.Entry<Post, Integer>>comparingInt(Map.Entry::getValue).reversed()
                         .thenComparing(e -> e.getKey().getCreatedAt(), Comparator.reverseOrder()))
                 .limit(20)
-                .map(e -> PostMapper.toResponse(e.getKey()))
+                .map(e -> PostMapper.toResponse(e.getKey(), isPostLikedByCurrentUser(e.getKey(), userId)))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getPostByUserId(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new HttpBadRequestException("User not found"));
+
+        List<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        if (posts.isEmpty()) {
+            throw new HttpBadRequestException("No posts found for user");
+        }
+
+        return posts.stream()
+                .map(post -> PostMapper.toResponse(post, isPostLikedByCurrentUser(post, user.getId())))
+                .collect(Collectors.toList());
     }
 }

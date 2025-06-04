@@ -1,10 +1,11 @@
 package org.concord.backend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.concord.backend.dal.model.postgres.User;
 import org.concord.backend.dto.request.PostRequest;
-import org.concord.backend.dto.request.UserIdRequest;
 import org.concord.backend.dto.response.PostResponse;
 import org.concord.backend.service.PostService;
+import org.concord.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<PostResponse> createPost(@RequestBody PostRequest request) {
@@ -24,19 +26,29 @@ public class PostController {
 
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<List<PostResponse>> getAllPosts(@RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(postService.getAllPosts(authHeader));
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<String> likePost(@PathVariable Long id, @RequestBody UserIdRequest user) {
-        postService.likePost(id, user.getCurrentUserId());
+    public ResponseEntity<String> likePost(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        String token = authHeader.substring(7);
+        User user = userService.getCurrentUserFromToken(token);
+        postService.likePost(id, user.getId());
         return ResponseEntity.ok("Post liked");
     }
 
     @PostMapping("/{id}/unlike")
-    public ResponseEntity<String> unlikePost(@PathVariable Long id, @RequestBody UserIdRequest user) {
-        postService.unlikePost(id, user.getCurrentUserId());
+    public ResponseEntity<String> unlikePost(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        String token = authHeader.substring(7);
+        User user = userService.getCurrentUserFromToken(token);
+        postService.unlikePost(id, user.getId());
         return ResponseEntity.ok("Post unliked");
     }
 
@@ -44,5 +56,11 @@ public class PostController {
     public ResponseEntity<List<PostResponse>> getRecommendedPosts(@PathVariable Long id) {
         List<PostResponse> posts = postService.getRecommendedPosts(id);
         return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<PostResponse>> getPostByUserId(@PathVariable Long id) {
+        List<PostResponse> post = postService.getPostByUserId(id);
+        return ResponseEntity.ok(post);
     }
 }

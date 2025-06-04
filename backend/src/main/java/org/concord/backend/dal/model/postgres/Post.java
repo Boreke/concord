@@ -14,6 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ToString(exclude = {"likes"})
+@EqualsAndHashCode(exclude = {"likes", "user"})
 public class Post {
 
     @Id
