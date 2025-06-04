@@ -14,10 +14,55 @@ const user = await UserService.fetchCurrentUser(Astro.cookies.get("token")?.valu
                 <p class="text-sm text-gray-500 -mt-1.5">@{user?.userTag}</p>
             </div>
         </div>
-        <button class="btn-primary">Post</button>
-    </div>
-    <div class="ml-8 px-4 -mt-2 flex flex-col">
-        <input type="text" class="text-primary text-lg mt-4 outline-none" placeholder="Enter a title"/>
-        <textarea class="text-sm text-gray-500 outline-none" placeholder="Start writing..."/>
-    </div>
+        <form id="new-post-form" class="contents" aria-user-id={user?.id}>
+            <button type="submit" class="btn-primary">Post</button>
+            </div>
+            <div class="ml-8 px-4 -mt-2 flex flex-col">
+                <input id="post-title" type="text" class="text-primary text-lg mt-4 outline-none" placeholder="Enter a title" name="title"/>
+                <textarea id="post-content" class="text-sm text-gray-500 outline-none" placeholder="Start writing..." name="content"/>
+            </div>
+        </form>
 </div>
+<script>
+import { Post } from "../class/Post";
+import { PostService } from "../services/PostService";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("new-post-form") as HTMLFormElement | null;
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                const token = document.cookie
+                    .split("; ")
+                    .find(row => row.startsWith("token="))
+                    ?.split("=")[1];
+                const titleInput = document.getElementById("post-title") as HTMLInputElement | null;
+                const title = titleInput ? titleInput.value : "";
+                const content = (document.getElementById("post-content") as HTMLTextAreaElement | null)?.value;
+                const userId = form.getAttribute("aria-user-id");
+                console.log("userId", userId);
+                console.log("title", title);
+                console.log("content", content);
+                console.log("token", token);
+                if (!title || !content) {
+                    alert("Please fill in all fields.");
+                    return;
+                }
+                if (!token) {
+                    window.location.href = "/login";
+                    return;
+                }
+
+                const post = new Post(
+                    0,
+                    Number(userId),
+                    title,
+                    content,
+                    new Date().toISOString(),
+                    1,
+                    true
+                );
+                await PostService.createPost(post, token);
+            });
+        }
+    });
+</script>
