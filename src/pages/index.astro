@@ -7,11 +7,13 @@ import { PostService } from "../services/PostService";
 import { UserService } from "../services/UserService";
 import { Post } from "../class/Post.ts";
 import UserRecommendation from "../components/UserRecommendation.astro";
+
+
 var pageName = Astro.originPathname.split("/").pop();
 pageName = !pageName ? "home" : pageName;
 const pageTitle = pageName.charAt(0).toUpperCase() + pageName.slice(1);
 const token = Astro.cookies.get("token")?.value;
-let currentUser = null;
+let currentUser;
 try {
   currentUser = await UserService.fetchCurrentUser(token!);
 } catch (error) {
@@ -23,9 +25,8 @@ try {
     return Astro.redirect("/login");
   }
 }
-const posts: Post[] = AuthService.checkAuthServer(token)
-  ? await PostService.fetchRecommendedPosts(currentUser?.id, token!)
-  : await PostService.fetchPosts(token!);
+const posts: Post[] = await PostService.fetchRecommendedPosts(currentUser?.id, token!)
+
 ---
 
 <Layout>

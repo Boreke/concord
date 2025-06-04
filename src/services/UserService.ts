@@ -144,4 +144,21 @@ export class UserService {
         UserService.currentUser = User.fromAPI(updatedUser);
         return User.fromAPI(updatedUser);
     }
+
+    static async changeProfilePicture(file: File, token: string) {
+
+        const response = await fetch(`${env.API_URL}/users/profile-picture`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                "file": file
+            })
+        });
+        if (!response.ok) {
+            throw new Error('Failed to change profile picture');
+        }
+        return await response.json();
+    }
 }

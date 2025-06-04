@@ -102,11 +102,40 @@
           </form>
         </div>
       </li>
+      <li>
+        <div class="flex ml-7 w-full justify-between">
+          <h3 class="text-lg text-primary font-semibold">
+            Change your Profile picture
+          </h3>
+          <form class="flex items-center gap-5" action="">
+            <div>
+              <label
+                for="file"
+                class="flex items-center p-2 rounded-xl border border-gray-300 border-dashed cursor-pointer"
+              >
+                <div class="space-y-2">
+                  <h4 class="text-base font-semibold text-primary">
+                    Upload a file
+                  </h4>
+                </div>
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  accept="png, jpg"
+                  hidden
+                />
+              </label>
+            </div>
+            <input type="submit" class="btn-primary" />
+          </form>
+        </div>
+      </li>
     </ul>
   </div>
 </div>
 <script>
-import { UserService } from "../services/UserService";
+  import { UserService } from "../services/UserService";
 
   document.addEventListener("DOMContentLoaded", () => {
     const button1 = document.getElementById("newVisibilityToggle");
@@ -145,7 +174,7 @@ import { UserService } from "../services/UserService";
     updateInputType(true);
 
     document.querySelectorAll("form").forEach((form) => {
-      form.addEventListener("submit", async(e) => {
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(form);
         const token = document.cookie
@@ -156,9 +185,12 @@ import { UserService } from "../services/UserService";
         formData.forEach((value, key) => {
           data[key] = value;
         });
-        await UserService.updateUserProfile(data, token!);
+        if (data["file"]) {
+          await UserService.changeProfilePicture(data["file"] as File,  token!);
+        } else {
+          await UserService.updateUserProfile(data, token!);
+        }
         console.log("Form submitted:", data);
-        
       });
     });
   });
