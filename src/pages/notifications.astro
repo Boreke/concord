@@ -19,7 +19,9 @@ const posts = await (async () => {
         return await PostService.fetchPostsByUserId(followedUser.id, token!);
       })
     );
-    return postsArrays.flat();
+    const posts = postsArrays.flat();
+    posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return posts;
   } else {
     return [];
   }
