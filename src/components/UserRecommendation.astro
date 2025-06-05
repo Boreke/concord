@@ -3,10 +3,10 @@ import type { User } from "../class/User";
 import { UserService } from "../services/UserService";
 import { ensureValidToken } from "../utils/auth";
 
-let currentUser;
-let recommendedUsers;
 const redirect = await ensureValidToken(Astro);
 if (redirect) return redirect;
+let currentUser: User ;
+let recommendedUsers: User[] = [];
 const token = Astro.cookies.get("token")?.value;
 
 try {
@@ -17,7 +17,6 @@ try {
   );
 } catch (error) {
   console.error("Error fetching recommended users:", error);
-  return Astro.redirect("/login");
 }
 ---
 

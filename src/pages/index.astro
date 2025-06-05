@@ -18,15 +18,16 @@ if (redirect) return redirect;
 const token = Astro.cookies.get("token")?.value;
 
 let currentUser;
+let posts: Post[] = [];
 try {
   currentUser = await UserService.fetchCurrentUser(token!);
+  posts = await PostService.fetchRecommendedPosts(
+    currentUser?.id,
+    token!
+  );
 } catch (error) {
   console.error("Error fetching current user:", error);
 }
-const posts: Post[] = await PostService.fetchRecommendedPosts(
-  currentUser?.id,
-  token!
-);
 ---
 
 <Layout>

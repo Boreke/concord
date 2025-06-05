@@ -1,11 +1,17 @@
 ---
+import type { User } from "../class/User";
 import { UserService } from "../services/UserService";
 import { ensureValidToken } from "../utils/auth";
 const redirect = await ensureValidToken(Astro);
 if (redirect) return redirect;
-const user = await UserService.fetchCurrentUser(
-  Astro.cookies.get("token")?.value!
-);
+let user: User | null = null;
+try {
+  user = await UserService.fetchCurrentUser(
+    Astro.cookies.get("token")?.value!
+  );
+} catch (error) {
+  console.error("Error fetching user:", error);
+}
 ---
 
 <form

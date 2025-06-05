@@ -105,7 +105,7 @@ import LoginLayout from "../layouts/LoginLayout.astro";
       const serverError = document.getElementById("serverError");
       if (serverError) {
         serverError.textContent = error instanceof Error && error.message
-          ? `An error occurred: ${error.message}`
+          ? `${error.message}`
           : "An error occurred while logging in. Please try again.";
       }
       console.error("Login error:", error);

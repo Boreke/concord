@@ -193,7 +193,7 @@ import LoginLayout from "../layouts/LoginLayout.astro";
         if (serverError) {
             serverError.textContent =
               error instanceof Error && error.message
-                ? `An error occurred: ${error.message}`
+                ? `${error.message}`
                 : "An error occurred while registering. Please try again.";
         }
         return;

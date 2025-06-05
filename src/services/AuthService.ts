@@ -4,22 +4,27 @@ export  class AuthService {
   static isAuthenticated: boolean;
   constructor() {}
 
-  static async login(formData:{userTag: string,password: string}) {
-    const response = await fetch(`${env.API_URL}/auth/login`, {
+  static login(formData: { userTag: string; password: string }) {
+    return fetch(`${env.API_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(formData),
-    });
-    const data = await response.json();
-    if (data) {
-      document.cookie = `token=${data.token}; path=/; max-age=3600; samesite=strict`;
-      document.cookie = `refreshToken=${data.refreshToken}; path=/; max-age=604800; samesite=strict`;
-      window.location.href = '/';
-    } else {
-      throw new Error(data.message);
-    }
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.token && data.refreshToken) {
+          document.cookie = `token=${data.token}; path=/; max-age=3600; samesite=strict`;
+          document.cookie = `refreshToken=${data.refreshToken}; path=/; max-age=604800; samesite=strict`;
+          window.location.href = '/';
+        } else {
+          throw new Error(data.message);
+        }
+      })
+      .catch(error => {
+        throw error;
+      });
   }
 
   static logout() {
@@ -65,21 +70,25 @@ export  class AuthService {
   }
 
   static async register(formData:{email: string, password: string,userTag:string, displayName: string}) {
-    const response = await fetch(`${env.API_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-    });
-    const data = await response.json();
-    
-    if (data) {
-      document.cookie = `token=${data.token}; path=/; max-age=3600; samesite=strict`;
-      document.cookie = `refreshToken=${data.refreshToken}; path=/; max-age=604800; samesite=strict`;
-      window.location.href = '/';
-    } else {
-      throw new Error(data.message);
-    }
+    return fetch(`${env.API_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+      .then(response => response.json())
+      .then(data => {
+      if (data.token && data.refreshToken) {
+        document.cookie = `token=${data.token}; path=/; max-age=3600; samesite=strict`;
+        document.cookie = `refreshToken=${data.refreshToken}; path=/; max-age=604800; samesite=strict`;
+        window.location.href = '/';
+      } else {
+        throw new Error(data.message);
+      }
+      })
+      .catch(error => {
+      throw error;
+      });
   }
 }
