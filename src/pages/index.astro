@@ -2,7 +2,6 @@
 import PostComponent from "../components/PostComponent.astro";
 import Layout from "../layouts/Layout.astro";
 import EmptyPost from "../components/EmptyPost.astro";
-import { AuthService } from "../services/AuthService";
 import { PostService } from "../services/PostService";
 import { UserService } from "../services/UserService";
 import { Post } from "../class/Post.ts";
@@ -31,7 +30,7 @@ try {
 ---
 
 <Layout>
-  <main class="flex-1 border-x border-primary overflow-auto">
+  <main class="flex-1 border-x border-primary overflow-auto overflow-x-hidden">
     <div
       class="flex items-center p-4 py-2 mt-3 border-b border-primary bg-white"
     >
