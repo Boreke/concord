@@ -5,7 +5,7 @@
 }
 
 .btn-primary {
-  @apply bg-[#A79A0D] text-white rounded-xl p-2 px-4 font-semibold w-fit;
+  @apply bg-[#A79A0D] text-white rounded-xl p-2 px-4 font-semibold w-fit hover:opacity-80 cursor-pointer;
 }
 
 .btn-primary-inverse {

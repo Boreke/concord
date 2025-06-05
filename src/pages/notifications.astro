@@ -33,7 +33,7 @@ const posts = await (async () => {
     class="flex flex-1 flex-col items-center border-x border-primary gap-4 h-screen"
   >
     {
-      posts ? (
+      posts && posts.length > 0 ? (
         posts.map((post) => <Notification post={post} />)
       ) : (
         <p class="text-primary text-xl">No notifications</p>
