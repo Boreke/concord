@@ -26,17 +26,5 @@ services:
     volumes:
       - ./logs:/logs
 
-  frontend:
-    build: .
-    depends_on:
-      - backend
-    environment:
-      - HOST=0.0.0.0
-      - PORT=4321
-    ports:
-      - "4321:4321"
-    volumes:
-      - ./logs:/logs
-
 volumes:
   pgdata:
