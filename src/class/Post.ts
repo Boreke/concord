@@ -5,13 +5,15 @@ export class Post{
     content: string;
     createdAt: string;
     likeCount: number;
-    constructor(id: number, userId: number, title: string, content: string, createdAt: string, likeCount: number) {
+    likedByCurrentUser: boolean;
+    constructor(id: number, userId: number, title: string, content: string, createdAt: string, likeCount: number, likedByCurrentUser: boolean) {
         this.id = id;
         this.userId = userId;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
-        this.likeCount = likeCount || 0;
+        this.likeCount = likeCount;
+        this.likedByCurrentUser = likedByCurrentUser || false;
     }
 
     toString(): string {
@@ -25,7 +27,8 @@ export class Post{
             response.title,
             response.content,
             response.createdAt,
-            response.likeCount || 0 // Default to 0 if likeCount is not provided
+            response.likeCount,
+            response.likedByCurrentUser ? true : false // Ensure boolean value
         )
     }
 

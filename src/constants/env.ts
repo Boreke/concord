@@ -1,3 +1,3 @@
-export const env={
-  API_URL: 'http://concord-api.duckdns.org/concord/'
+export var env={
+  API_URL: 'https://concord-api.duckdns.org/concord',
 }

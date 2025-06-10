@@ -1,0 +1,46 @@
+---
+import type { User } from "../class/User";
+import { UserService } from "../services/UserService";
+import { ensureValidToken } from "../utils/auth";
+
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
+let currentUser: User ;
+let recommendedUsers: User[] = [];
+const token = Astro.cookies.get("token")?.value;
+
+try {
+  currentUser = await UserService.fetchCurrentUser(token!);
+  recommendedUsers = await UserService.fetchRecommendedUsers(
+    currentUser!.id,
+    token!
+  );
+} catch (error) {
+  console.error("Error fetching recommended users:", error);
+}
+---
+
+<div
+  class="flex flex-col items-center gap-4 w-1/4 h-full p-4 bg-white sticky top-0"
+>
+  <h2 class="text-primary font-semibold text-lg">Recommended Users</h2>
+  <div class="w-full h-full overflow-y-auto">
+    <ul class="space-y-4">
+      {
+        recommendedUsers.map((user: User) => (
+          <li class="flex items-center gap-2">
+            <img
+              src="/logo.svg"
+              alt="user picture"
+              class="h-10 w-10 rounded-full"
+            />
+            <a href={`/user/${user.id}`} class="flex flex-col">
+              <h3 class="text-primary font-semibold">{user.displayName}</h3>
+              <p class="text-sm text-gray-500">@{user.userTag}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>

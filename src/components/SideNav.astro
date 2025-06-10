@@ -1,9 +1,13 @@
 ---
 import { navMenus } from "../constants/menus";
-const isLoggedIn  = true;
+import { AuthService } from "../services/AuthService";
+import { ensureValidToken } from "../utils/auth";
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
+const isLoggedIn  = AuthService.checkAuthServer(Astro.cookies.get("token")?.value);
 ---
 
-<div class="w-fit p-4 bg-white flex flex-col sticky border-r border-primary top-0 left-0">
+<div class="w-fit p-4 bg-white flex flex-col sticky border-primary top-0 left-0">
     <div class="flex items-center">
         <img src="/logo.svg" alt="Logo" class="h-12 w-12 mr-2" />
         <h1 class="text-2xl text-primary font-bold">Concord</h1>
@@ -26,6 +30,13 @@ const isLoggedIn  = true;
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
                         <a href="/profile" class="btn-primary-inverse"> Profile</a>
+                    </li>
+                    <li class="flex items-center ml-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#a79a0d" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                        </svg>
+
+                        <a href="/logout" class="btn-primary-inverse"> Log-Out</a>
                     </li>
                 ) : (
                     <li class="flex flex-col justify-center">

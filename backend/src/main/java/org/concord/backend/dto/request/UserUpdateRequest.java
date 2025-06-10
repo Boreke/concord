@@ -6,7 +6,5 @@ import lombok.Data;
 public class UserUpdateRequest {
     private String email;
     private String password;
-    private String userTag;
     private String displayName;
-    private Boolean isPrivate;
 }

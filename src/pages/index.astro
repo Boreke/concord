@@ -1,27 +1,50 @@
 ---
-import Post from '../components/Post.astro';
-import Layout from '../layouts/Layout.astro';
-import { postTemplate } from '../constants/postTemplate';
-import EmptyPost from '../components/EmptyPost.astro';
-import SearchSection from '../components/SearchSection.astro';
-var pageName= Astro.originPathname.split('/').pop();
-pageName = !pageName? 'home' : pageName;
+import PostComponent from "../components/PostComponent.astro";
+import Layout from "../layouts/Layout.astro";
+import EmptyPost from "../components/EmptyPost.astro";
+import { PostService } from "../services/PostService";
+import { UserService } from "../services/UserService";
+import { Post } from "../class/Post.ts";
+import UserRecommendation from "../components/UserRecommendation.astro";
+import { ensureValidToken } from "../utils/auth";
+
+var pageName = Astro.originPathname.split("/").pop();
+pageName = !pageName ? "home" : pageName;
 const pageTitle = pageName.charAt(0).toUpperCase() + pageName.slice(1);
+
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
+const token = Astro.cookies.get("token")?.value;
+
+let currentUser;
+let posts: Post[] = [];
+try {
+  currentUser = await UserService.fetchCurrentUser(token!);
+  posts = await PostService.fetchRecommendedPosts(
+    currentUser?.id,
+    token!
+  );
+} catch (error) {
+  console.error("Error fetching current user:", error);
+}
 ---
 
 <Layout>
-    <main class="flex-1 border-x border-primary ">
-        <div class="flex items-center p-4 py-2 mt-3 border-b border-primary bg-white">
-            <h1 class="text-primary font-semibold text-lg">{pageTitle}</h1>
-        </div>
-        <EmptyPost />
-        <div class="w-full bg-[#a79a0d]/90 h-3">&nbsp;</div>
-        {
-            postTemplate.map((post) => (
-                <Post post={post} />
-            ))
-        }
-    </main>
-    <SearchSection/>
-    
+  <main class="flex-1 border-x border-primary overflow-auto overflow-x-hidden">
+    <div
+      class="flex items-center p-4 py-2 mt-3 border-b border-primary bg-white"
+    >
+      <h1 class="text-primary font-semibold text-lg">{pageTitle}</h1>
+    </div>
+    <EmptyPost />
+    <div class="w-full bg-[#a79a0d]/90 h-3">&nbsp;</div>
+    {
+      posts && posts.length > 0 ? (
+        posts.map((post) => <PostComponent post={post} />)
+      ) : (
+        <p class="text-primary w-full h-full text-center">No posts available</p>
+      )
+    }
+  </main>
+  <UserRecommendation />
 </Layout>

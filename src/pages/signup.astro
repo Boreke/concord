@@ -3,30 +3,32 @@ import LoginLayout from "../layouts/LoginLayout.astro";
 ---
 
 <LoginLayout>
-  <form action="" class="flex flex-col items-center gap-8">
-    <h1 class="text-5xl text-primary font-bold text-center mb-8">
+  <form action="" id="signupForm" class="flex flex-col items-center gap-8">
+    <h1 class="text-5xl text-primary font-bold text-center mb-3">
       Create an account
     </h1>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
       <input
         class="border border-primary rounded-md p-2 mt-1 w-80"
-        type="email"
+        type="text"
         id="username"
         placeholder="Username"
         required
       />
+      <span id="usernameError" class="text-red-500 text-sm"></span>
       <div
         class="border border-primary rounded-md p-2 mt-1 w-80 flex items-center"
       >
         <p>@</p>
         <input
           class="outline-none w-full"
-          type="email"
-          id="usertag"
+          type="text"
+          id="userTag"
           placeholder="Tag"
           required
         />
       </div>
+      <span id="userTagError" class="text-red-500 text-sm"></span>
       <input
         class="border border-primary rounded-md p-2 mt-1 w-80"
         type="email"
@@ -34,6 +36,7 @@ import LoginLayout from "../layouts/LoginLayout.astro";
         placeholder="Email"
         required
       />
+      <span id="emailError" class="text-red-500 text-sm"></span>
       <input
         class="border border-primary rounded-md p-2 mt-1 w-80"
         type="email"
@@ -41,6 +44,7 @@ import LoginLayout from "../layouts/LoginLayout.astro";
         placeholder="Repeat email"
         required
       />
+      <span id="repeatEmailError" class="text-red-500 text-sm"></span>
       <div
         class="flex border-1 w-80 justify-between border-primary p-2 rounded-md"
       >
@@ -48,7 +52,9 @@ import LoginLayout from "../layouts/LoginLayout.astro";
           <input
             type="password"
             placeholder="Password"
+            id="password"
             class="outline-none w-full"
+            required
           />
         </div>
         <span id="passwordVisibilityToggle">
@@ -68,6 +74,7 @@ import LoginLayout from "../layouts/LoginLayout.astro";
           </svg>
         </span>
       </div>
+      <span id="passwordError" class="text-red-500 text-sm"></span>
       <div
         class="flex border-1 w-80 justify-between border-primary p-2 rounded-md"
       >
@@ -75,7 +82,9 @@ import LoginLayout from "../layouts/LoginLayout.astro";
           <input
             type="password"
             placeholder="Confirm Password"
+            id="confirmPassword"
             class="outline-none w-full"
+            required
           />
         </div>
         <span id="confirmPasswordVisibilityToggle">
@@ -95,43 +104,101 @@ import LoginLayout from "../layouts/LoginLayout.astro";
           </svg>
         </span>
       </div>
+      <span id="confirmPasswordError" class="text-red-500 text-sm"></span>
+      <span id="serverError" class="text-red-500 text-sm"></span>
     </div>
+
     <button type="submit" class="btn-primary">Sign Up</button>
+    <p class="text-center text-gray-500">
+      Already have an account? <a
+        href="/login"
+        class="hover:underline text-primary">Log in</a
+      >
+    </p>
   </form>
 </LoginLayout>
 <script>
-  const button1 = document.getElementById("passwordVisibilityToggle");
-  const button2 = document.getElementById("confirmPasswordVisibilityToggle");
-  const openEye =
-    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>';
-  const closedEye =
-    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>';
+  import { AuthService } from "../services/AuthService";
 
-  let isVisible = false;
+  document.addEventListener("DOMContentLoaded", () => {
+    const button1 = document.getElementById("passwordVisibilityToggle");
+    const button2 = document.getElementById("confirmPasswordVisibilityToggle");
+    const openEye =
+      '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>';
+    const closedEye =
+      '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>';
 
-  function updateInputType(isConfirmField: boolean) {
-    const inputDiv = isConfirmField
-      ? document.getElementById("confirmPasswordDiv")
-      : document.getElementById("passwordDiv");
-    const inputElement = inputDiv?.querySelector("input");
-    if (inputElement) {
-      inputElement.type = isVisible ? "text" : "password";
+    let isVisible = false;
+
+    function updateInputType(isConfirmField: boolean) {
+      const inputDiv = isConfirmField
+        ? document.getElementById("confirmPasswordDiv")
+        : document.getElementById("passwordDiv");
+      const inputElement = inputDiv?.querySelector("input");
+      if (inputElement) {
+        inputElement.type = isVisible ? "text" : "password";
+      }
     }
-  }
 
-  button1?.addEventListener("click", (e) => {
-    e.preventDefault();
-    isVisible = !isVisible;
+    button1?.addEventListener("click", (e) => {
+      e.preventDefault();
+      isVisible = !isVisible;
+      updateInputType(false);
+      button1.innerHTML = isVisible ? openEye : closedEye;
+    });
+    button2?.addEventListener("click", (e) => {
+      e.preventDefault();
+      isVisible = !isVisible;
+      updateInputType(true);
+      button2.innerHTML = isVisible ? openEye : closedEye;
+    });
+
     updateInputType(false);
-    button1.innerHTML = isVisible ? openEye : closedEye;
-  });
-  button2?.addEventListener("click", (e) => {
-    e.preventDefault();
-    isVisible = !isVisible;
     updateInputType(true);
-    button2.innerHTML = isVisible ? openEye : closedEye;
-  });
 
-  updateInputType(false);
-  updateInputType(true);
+    const signupForm = document.getElementById("signupForm");
+    signupForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fields = ["username", "userTag", "email", "repeatEmail", "password", "confirmPassword"];
+      const [username, userTag, email, repeatEmail, password, confirmPassword] = fields.map(
+        id => (document.getElementById(id) as HTMLInputElement)?.value || ""
+      );
+
+      if (email !== repeatEmail) {
+        const repeatEmailError = document.getElementById("repeatEmailError");
+        if (repeatEmailError) {
+          repeatEmailError.textContent = "Emails do not match!";
+        }
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        const confirmPasswordError = document.getElementById("confirmPasswordError");
+        if (confirmPasswordError) {
+          confirmPasswordError.textContent = "Passwords do not match!";
+        }
+        return;
+      }
+
+      const formData = {
+        email: email,
+        password: password,
+        userTag: userTag,
+        displayName: username,
+      };
+      try {
+        await AuthService.register(formData);
+      } catch (error) {
+        const serverError = document.getElementById("serverError");
+        if (serverError) {
+            serverError.textContent =
+              error instanceof Error && error.message
+                ? `${error.message}`
+                : "An error occurred while registering. Please try again.";
+        }
+        return;
+      }
+      window.location.href = "/";
+    });
+  });
 </script>

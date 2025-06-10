@@ -3,16 +3,16 @@ import LoginLayout from "../layouts/LoginLayout.astro";
 ---
 
 <LoginLayout>
-  <form action="" class="flex flex-col items-center gap-8">
+  <form action="" id="loginForm" class="flex flex-col items-center gap-8">
     <h1 class="text-5xl text-primary font-bold text-center mb-8">
       Log into your account
     </h1>
     <div class="flex flex-col items-center gap-4">
       <input
         class="border border-primary rounded-md p-2 mt-1 w-80"
-        type="email"
-        id="email"
-        placeholder="email"
+        type="text"
+        id="userTag"
+        placeholder="userTag"
         required
       />
       <div
@@ -20,6 +20,8 @@ import LoginLayout from "../layouts/LoginLayout.astro";
       >
         <div id="passwordDiv" class="w-full">
           <input
+            id="password"
+            required
             type="password"
             placeholder="Password"
             class="outline-none w-full"
@@ -42,11 +44,17 @@ import LoginLayout from "../layouts/LoginLayout.astro";
           </svg>
         </span>
       </div>
+      <p id="serverError" class="text-red-600 text-sm text-center"></p>
       <button type="submit" class="btn-primary">Login</button>
+      <a href="/signup" class="text-primary hover:underline text-sm">
+        Don't have an account? Register here
+      </a>
     </div>
   </form>
 </LoginLayout>
 <script>
+  import { AuthService } from "../services/AuthService";
+
   const button1 = document.getElementById("passwordVisibilityToggle");
   const openEye =
     '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>';
@@ -70,4 +78,39 @@ import LoginLayout from "../layouts/LoginLayout.astro";
     button1.innerHTML = isVisible ? openEye : closedEye;
   });
   updateInputType();
+  const loginForm = document.getElementById("loginForm");
+  loginForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const userTag = (document.getElementById("userTag") as HTMLInputElement)
+      ?.value;
+    const password = (document.getElementById("password") as HTMLInputElement)
+      ?.value;
+    if (!userTag || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_@+]+$/.test(userTag)) {
+      alert(
+        "Invalid userTag format. Only alphanumeric characters, underscores, '@', and '+' are allowed."
+      );
+      return;
+    }
+    const formData = {
+      userTag: userTag,
+      password: password,
+    };
+    try {
+      await AuthService.login(formData);
+    } catch (error) {
+      const serverError = document.getElementById("serverError");
+      if (serverError) {
+        serverError.textContent = error instanceof Error && error.message
+          ? `${error.message}`
+          : "An error occurred while logging in. Please try again.";
+      }
+      console.error("Login error:", error);
+      return;
+      
+    }
+  });
 </script>

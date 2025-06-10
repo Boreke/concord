@@ -1,0 +1,311 @@
+---
+
+---
+
+<div class="border-primary h-screen w-full">
+  <div class="flex items-center p-4 py-2 pt-3 bg-white">
+    <h1 class="text-primary font-semibold text-lg">Preferences</h1>
+  </div>
+  <div class="flex flex-col ml-4 justify-center w-7/8 mt-10">
+    <ul class="flex flex-col gap-y-10 w-full">
+      <li>
+        <div class="flex ml-7 w-full justify-between">
+          <h3 class="text-lg text-primary font-semibold">Username</h3>
+          <form class="flex items-center gap-5 " action="">
+            <span class="flex items-center text-red-500 text-sm w-fit mr-2" id="usernameError"></span>
+            <span class="flex items-center text-green-500 text-sm w-fit mr-2" id="usernameSuccess"></span>
+            <input
+              name="displayName"
+              type="text"
+              class="border border-gray-300 rounded-md p-2 mt-1 w-fit"
+              placeholder="Change username"
+            />
+            <input type="submit" class="btn-primary" />
+          </form>
+        </div>
+      </li>
+      <li>
+        <div class="flex gap-5 ml-7 w-full justify-between">
+          <h3 class="text-lg text-primary font-semibold">Email</h3>
+          <form class="flex items-center gap-5" action="">
+            <span class="flex items-center text-red-500 text-sm w-fit mr-2" id="emailError"></span>
+            <span class="flex items-center text-green-500 text-sm w-fit mr-2" id="emailSuccess"></span>
+            <input
+              name="email"
+              type="text"
+              class="border border-gray-300 rounded-md p-2 mt-1 w-fit"
+              placeholder="Change email"
+            />
+            <input
+              name="repeatEmail"
+              type="text"
+              class="border border-gray-300 rounded-md p-2 mt-1 w-fit"
+              placeholder="repeat email"
+            />
+            <input type="submit" class="btn-primary" />
+          </form>
+        </div>
+      </li>
+      <li>
+        <div class="flex gap-5 ml-7 w-full justify-between">
+          <h1 class="text-primary font-semibold text-lg">Modify password</h1>
+          <form class="flex items-center gap-x-5 justify-center">
+            <span class="text-red-500 text-sm mr-2 w-fit" id="passwordError"
+            ></span>
+            <span class="text-green-500 text-sm mr-2 w-fit" id="passwordSuccess"
+            ></span>
+            <div class="flex border border-gray-300 rounded-md p-2 w-fit">
+              <div id="inputDiv">
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="New Password"
+                  class="outline-none"
+                />
+              </div>
+              <span id="newVisibilityToggle">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#A79A0D"
+                  class="size-6"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                  ></path>
+                </svg>
+              </span>
+            </div>
+            <div class="flex border border-gray-300 rounded-md p-2 w-fit">
+              <div id="confirmInputDiv">
+                <input
+                  name="confirmNewPassword"
+                  type="password"
+                  placeholder="Confirm New Password"
+                  class="outline-none"
+                />
+              </div>
+              <span id="confirmVisibilityToggle">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#A79A0D"
+                  class="size-6"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                  ></path>
+                </svg>
+              </span>
+            </div>
+            <input type="submit" class="btn-primary" value="Save Changes" />
+          </form>
+        </div>
+      </li>
+      <li>
+        <div class="flex ml-7 w-full justify-between">
+          <h3 class="text-lg text-primary font-semibold">
+            Change your Profile picture
+          </h3>
+          <form class="flex items-center gap-5" action="">
+            <span class="text-red-500 text-sm mr-2 w-fit" id="fileError"></span>
+            <span class="text-green-500 text-sm mr-2 w-fit" id="fileSuccess"
+            ></span>
+            <div>
+              <label
+                for="file"
+                class="flex items-center p-2 rounded-xl border border-gray-300 border-dashed cursor-pointer"
+              >
+                <div class="space-y-2">
+                  <h4 class="text-base font-semibold text-primary">
+                    Upload a file
+                  </h4>
+                  <span id="selectedFileName" class="text-sm text-gray-500"
+                  ></span>
+                </div>
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  accept="image/png, image/jpeg"
+                  hidden
+                  onchange="document.getElementById('selectedFileName').textContent = this.files && this.files[0] ? this.files[0].name : ''"
+                />
+              </label>
+            </div>
+            <input type="submit" class="btn-primary" />
+          </form>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+<script>
+  import { UserService } from "../services/UserService";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const button1 = document.getElementById("newVisibilityToggle");
+    const button2 = document.getElementById("confirmVisibilityToggle");
+    const openEye =
+      '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>';
+    const closedEye =
+      '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A79A0D" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>';
+
+    let isVisible = false;
+
+    function updateInputType(isConfirmField: boolean) {
+      const inputDiv = isConfirmField
+        ? document.getElementById("confirmInputDiv")
+        : document.getElementById("inputDiv");
+      const inputElement = inputDiv?.querySelector("input");
+      if (inputElement) {
+        inputElement.type = isVisible ? "text" : "password";
+      }
+    }
+
+    button1?.addEventListener("click", (e) => {
+      e.preventDefault();
+      isVisible = !isVisible;
+      updateInputType(false);
+      button1.innerHTML = isVisible ? openEye : closedEye;
+    });
+    button2?.addEventListener("click", (e) => {
+      e.preventDefault();
+      isVisible = !isVisible;
+      updateInputType(true);
+      button2.innerHTML = isVisible ? openEye : closedEye;
+    });
+
+    updateInputType(false);
+    updateInputType(true);
+
+    document.querySelectorAll("form").forEach((form) => {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const token = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="))
+          ?.split("=")[1];
+        const data: { [key: string]: FormDataEntryValue } = {};
+
+        formData.forEach((value, key) => {
+          data[key] = value;
+        });
+
+        function showMessage(id: string, message: string, isSuccess = false) {
+          const elem = document.getElementById(id);
+          if (elem) {
+            elem.textContent = message;
+          }
+        }
+        if (data["file"]) {
+          if (
+            !(data["file"] instanceof File) ||
+            (data["file"] as File).size === 0
+          ) {
+            showMessage("fileError", "Please select a valid file!");
+            return;
+          }
+          try {
+            await UserService.changeProfilePicture(
+              data["file"] as File,
+              token!
+            );
+            // Show success message for file upload
+            showMessage(
+              "fileSuccess",
+              "Profile picture updated successfully!",
+              true
+            );
+          } catch (error) {
+            const errorMsg =
+              error instanceof Error && error.message
+                ? error.message
+                : "An error occurred";
+            showMessage("fileError", errorMsg);
+          }
+        } else {
+          // Password validation
+          // Password validation
+          if ("password" in data || "confirmNewPassword" in data) {
+            if (!data["password"] || !data["confirmNewPassword"]) {
+              showMessage("passwordError", "Password fields cannot be empty!");
+              return;
+            }
+            if (data["password"] !== data["confirmNewPassword"]) {
+              showMessage("passwordError", "Passwords do not match!");
+              return;
+            }
+            delete data["confirmNewPassword"];
+          }
+
+          // Email validation
+          if ("email" in data) {
+            if (data["email"] === "") {
+              showMessage("emailError", "Email cannot be empty!");
+              return;
+            }
+            if (data["email"] !== data["repeatEmail"]) {
+              showMessage("emailError", "Emails do not match!");
+              return;
+            } else if (
+              !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data["email"]))
+            ) {
+              showMessage("emailError", "Invalid email format!");
+              return;
+            }
+            delete data["repeatEmail"];
+          }
+
+          if ("displayName" in data && data["displayName"] === "") {
+            showMessage("usernameError", "Username cannot be empty!");
+            return;
+          }
+
+          try {
+            await UserService.updateUserProfile(data, token!);
+
+            // Success messages
+            if (data["displayName"]) {
+              showMessage(
+                "usernameSuccess",
+                "Username updated successfully!",
+                true
+              );
+              showMessage("usernameError", "");
+            }
+            if (data["email"]) {
+              showMessage("emailSuccess", "Email updated successfully!", true);
+              showMessage("emailError", "");
+            }
+            if (data["password"]) {
+              showMessage(
+                "passwordSuccess",
+                "Password updated successfully!",
+                true
+              );
+              showMessage("passwordError", "");
+            }
+          } catch (error) {
+            const errorMsg =
+              error instanceof Error && error.message
+                ? error.message
+                : "An error occurred";
+            if (data["displayName"]) showMessage("usernameError", errorMsg);
+            if (data["email"]) showMessage("emailError", errorMsg);
+            if (data["password"]) showMessage("passwordError", errorMsg);
+          }
+        }
+      });
+    });
+  });
+</script>

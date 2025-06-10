@@ -150,7 +150,7 @@ public class UserService {
                     .entrySet().stream()
                     .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
                     .map(Map.Entry::getKey)
-                    .filter(id -> !id.equals(userId))
+                    .filter(id -> !id.equals(userId) || !followingIds.contains(id))
                     .limit(20)
                     .toList();
 
@@ -176,11 +176,15 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        user.setUserTag(userUpdateRequest.getUserTag());
-        user.setEmail(userUpdateRequest.getEmail());
-        user.setDisplayName(userUpdateRequest.getDisplayName());
-        user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
-        user.setPrivate(userUpdateRequest.getIsPrivate());
+        if (userUpdateRequest.getEmail() != null) {
+            user.setEmail(userUpdateRequest.getEmail());
+        }
+        if (userUpdateRequest.getDisplayName() != null) {
+            user.setDisplayName(userUpdateRequest.getDisplayName());
+        }
+        if (userUpdateRequest.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        }
 
         return userRepository.save(user);
     }

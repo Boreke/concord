@@ -1,0 +1,40 @@
+---
+import type { User } from "../../../class/User";
+import UserCard from "../../../components/UserCard.astro";
+import Layout from "../../../layouts/Layout.astro";
+import { UserService } from "../../../services/UserService";
+import { ensureValidToken } from "../../../utils/auth";
+
+const redirect = await ensureValidToken(Astro);
+if (redirect) return redirect;
+const token = Astro.cookies.get("token")?.value;
+const userId = Astro.params.id;
+
+const user = await UserService.fetchUserById(Number(userId), token!);
+const currentUser = await UserService.fetchCurrentUser(token!);
+const following = await UserService.fetchFollowing(user.id, token!);
+---
+
+<Layout>
+  <main class="h-screen w-full flex flex-col border-x border-primary">
+    <section class="flex flex-col gap-4 py-4">
+      <div class="flex flex-col">
+        <h1 class="text-2xl text-primary font-bold pl-4 py-2">Following</h1>
+      </div>
+
+      <div class="flex flex-col gap-4 ml-4 overflow-auto">
+        {
+          following.length > 0 ? (
+            following.map((user: User) => (
+              <UserCard user={user} currentUserId={currentUser.id} />
+            ))
+          ) : (
+            <p class="text-lg text-primary">
+              @{user.userTag} is not following anyone yet.
+            </p>
+          )
+        }
+      </div>
+    </section>
+  </main>
+</Layout>

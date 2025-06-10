@@ -4,46 +4,19 @@ export class User {
     email: string;
     displayName: string;
     role: string;
-    createdAt: string;
     _isPrivate: boolean;
+    profileImageUrl: string;
 
-    constructor(id: number, userTag: string, email: string, displayName: string, role: string, createdAt: string, isPrivate = false) {
+    constructor(id: number, userTag: string, email: string, displayName: string, role: string, profileImageUrl = '', isPrivate = false) {
         this.id = id;
         this.userTag = userTag;
         this.email = email;
         this.displayName = displayName;
         this.role = role;
-        this.createdAt = createdAt;
         this._isPrivate = isPrivate;
+        this.profileImageUrl = profileImageUrl;
     }
-
-    getId(): number {
-        return this.id;
-    }
-
-    getEmail(): string {
-        return this.email;
-    }
-
-    setEmail(email: string) {
-        this.email = email;
-    }
-    setRole(role: string) {
-        this.role = role;
-    }
-    setPrivate(isPrivate: boolean) {
-        this._isPrivate = isPrivate;
-    }
-    getRole(): string {
-        return this.role;
-    }
-    getDisplayName(): string {
-        return this.displayName;
-    }
-    getUserTag(): string {
-        return this.userTag;
-    }
-    isPrivate(): boolean {
+    get isPrivate(): boolean {
         return this._isPrivate;
     }
     toString(): string {
@@ -56,7 +29,7 @@ export class User {
             response.email,
             response.displayName,
             response.role,
-            response.createdAt,
+            response.profileImageUrl,
             response.isPrivate
         );
     }

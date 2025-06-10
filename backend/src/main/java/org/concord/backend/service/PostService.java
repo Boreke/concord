@@ -83,6 +83,7 @@ public class PostService {
         List<Like> otherLikes = likeRepository.findAllByUserIdNot(userId);
 
         Map<Long, Integer> userInCommon = new HashMap<>();
+
         for (Like like : otherLikes) {
             if (likedPostIds.contains(like.getPost().getId())) {
                 userInCommon.put(like.getUser().getId(), userInCommon.getOrDefault(like.getUser().getId(), 0) + 1);
@@ -94,13 +95,10 @@ public class PostService {
             Long likerId = like.getUser().getId();
             Post post = like.getPost();
 
-            if (userInCommon.containsKey(likerId) && !likedPostIds.contains(post.getId())) {
+            if (!userInCommon.containsKey(likerId) || likedPostIds.contains(post.getId())) {
                 scoreMap.put(post, scoreMap.getOrDefault(post, 0) + 1);
             }
         }
-
-        Map<Integer, Long> distribution = scoreMap.values().stream()
-                .collect(Collectors.groupingBy(i -> i, Collectors.counting()));
 
         if (scoreMap.isEmpty()) {
             List<Post> fallback = postRepository.findTop20ByOrderByCreatedAtDesc();
@@ -118,14 +116,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> getPostByUserId(Long id) {
+    public List<PostResponse> getPostByUserId(Long id, Long currentUserId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new HttpBadRequestException("User not found"));
 
         List<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
 
         return posts.stream()
-                .map(post -> PostMapper.toResponse(post, isPostLikedByCurrentUser(post, user.getId())))
+                .map(post -> PostMapper.toResponse(post, isPostLikedByCurrentUser(post, currentUserId)))
                 .collect(Collectors.toList());
     }
 }
